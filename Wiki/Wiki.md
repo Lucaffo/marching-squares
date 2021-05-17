@@ -18,7 +18,7 @@ Principalmente nel codice troveremo una struttura come:
 `Vector3[] vertices` dice alla mesh dove risiedono i punti.
 `int[] triangles` dice alla mesh l'ordine con il quale fare i triangoli. L'array di int è monodimensionale proprio perché i punti verranno presi ogni 3.
 
-![[Pasted image 20210517004041.png]]
+![](Images/Pasted%20image%2020210517004041.png)
 
 ## Mesh procedurali comuni
 Ci sono 3 basi su cui costruire le nostre mesh procedurali:
@@ -49,7 +49,7 @@ E' spesso usato, per creare ancora più realismo e dare l'impressione che un pat
 ## Perlin Noise
 E' un tipo di noise, descritto dall'informatico **Ken Perlin**. Permette la creazione di texture procedurali omogenee.
 
-![[Pasted image 20210517123243.png]]
+![](Images/Pasted%20image%2020210517123243.png)
 
 Questo oltre a permettere la creazione di texture usando pochissima memoria, permette di creare dei ***pattern*** che possono essere usati in ogni campo della generazione procedurale: dalle ***texture***, ai ***terreni***, ***mappe***, ***vegetazione***, ***nuvole*** etc..
 
@@ -61,7 +61,7 @@ Il fatto che sia un'algoritmo permette di essere facilmente controllabile e modi
 
 Il problema del perlin noise, è che il risultato spesso non porta a risultati veramente "realistici". 
 
-![[Pasted image 20210517122319.png]]
+![](Images/Pasted%20image%2020210517122319.png)
 
 Dall'immagine si vede, come questo perlin in realtà, produce scenari molto ripetuti, sebbene quasi realistici. 
 Non esistono dirupi e tante altre cose. 
@@ -69,7 +69,7 @@ Non esistono dirupi e tante altre cose.
 ## DEM Data
 E' possibile, addestrare un intelligenza artificiale per poter ricreare questi scenari "reali". I dati in ingresso dell'algoritmo, in questo caso, vengono dati da questa AI creando un risultato come il seguente.
 
-![[Pasted image 20210517122742.png]]
+![](Images/Pasted%20image%2020210517122742.png)
 
 #### Problema
 Il mondo reale è noioso. Se tu potessi camminare in questa distesa infinita, ti annoieresti in subito. Mancano dettagli e surrealità. Preferiresti esplorare la pianura padana o un terreno di grotte, colline etc... ti sei dato da solo la risposta.
@@ -110,14 +110,14 @@ float fbm(Vector3 vertex, float H)
 }
 ```
 
-![[Pasted image 20210517123745.png]]
+![](Images/Pasted%20image%2020210517123745.png)
 
 ### Billow
 Billow è essenzialmente la stessa cosa del simplex, solo che ogni valore della wave è in valore assoluto.
 
 Permette di creare colline rotonde o ripide pieghe. 
 
-![[Pasted image 20210517124219.png]]
+![](Images/Pasted%20image%2020210517124219.png)
 
 ```cs
 float n = Mathf.Abs(noise(freq * i, seed));
@@ -128,7 +128,7 @@ Ridged è il complemento negativo del Billow.
 
 Permette di burroni e ripide increspature. Permette di creare delle pieghe alla base molto più rotonde.
 
-![[Pasted image 20210517124514.png]]
+![](Images/Pasted%20image%2020210517124514.png)
 
 ```cs
 float n = 0f - Mathf.Abs(noise(freq * i, seed));
@@ -140,9 +140,9 @@ Warping significa che distorciamo il dominio di una funzione con un altra. Se ab
 
 Più fitri di dominio inseriamo è più realistico e definito sarà il noise ottenuto. Esempi usando Simplex:
 
-![[Pasted image 20210517130603.png]]
-![[Pasted image 20210517130612.png]]
-![[Pasted image 20210517130624.png]]
+![](Images/Pasted%20image%2020210517130603.png)
+![](Images/Pasted%20image%2020210517130612.png)
+![](Images/Pasted%20image%2020210517130624.png)
 
 Le immagini sono molto esplicative, è già possibile identificare rive, montagne zone deserte etc..
 
@@ -201,21 +201,21 @@ mesh.vertices = vertices;
 Quando si aggiunge o rimuove vertici da una mesh, è necessario chiamare prima di tutto il metodo `mesh.Clear()` per assicurarti di non andare out of bounds e avere errori spiacevoli sugli array.
 
 ### Normali
-![[Pasted image 20210517012703.png]]
+![](Images/Pasted%20image%2020210517012703.png)
 
 ### Colori
-![[Pasted image 20210517012747.png]]
-![[Pasted image 20210517012856.png]]
+![](Images/Pasted%20image%2020210517012747.png)
+![](Images/Pasted%20image%2020210517012856.png)
 Meglio usare come byte per evitare conversioni aggiuntive.
 
 ### UV 
-![[Pasted image 20210517012925.png]]
-![[Pasted image 20210517012934.png]]
+![](Images/Pasted%20image%2020210517012925.png)
+![](Images/Pasted%20image%2020210517012934.png)
 
 ## Impostare i vertici è la parte più difficile
-![[Pasted image 20210517013053.png]]
+![](Images/Pasted%20image%2020210517013053.png)
 Un esempio semplice, figurati se fosse stata una forma più complessa. E' difficile concettualizzare dove partire con gli indici dei vertici e dei triangoli.
 
 ### Mesh con numero di vertici e triangoli dinamici
 
-![[Pasted image 20210517013947.png]]
+![](Images/Pasted%20image%2020210517013947.png)
