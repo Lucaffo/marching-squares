@@ -161,61 +161,55 @@ float ridgedNoise = 1.0f - billowNoise;
 resultNoise = Mathf.Lerp(resultNoise, billowNoise)
 ```
 
+## Marching Cubes Algorithm
+L'algoritmo di marching cubes, "Cubi marcianti", è un calcolo che permette di creare una rappresentazione grafica di una **isosuperficie** in un campo scalare 3D. 
 
-# Unity
- ## Componenti richiesti
-** Mesh Filter ** contiene le informazioni sulla mesh.
-** Mesh Render ** renderizza la mesh.
+### Isosuperfici
+Una **isosuperficie** è una superficie **3D** che rappresenta la _distribuzione di punti in uno spazio 3D_. E' l'equivalente 3D della _linea di contorno_. 
 
-### Costruire una mesh su unity
-Quando si crea una mesh su unity, ci sono dei passaggi che vanno eseguiti nel solito ordine:
-1) **Assegnare i vertici**
-2) **Assegnare i triangoli**
+Una volta distributi questi punti in uno spazio 3D, ad essi viene associato un _valore_, tramite una funzione **`f(x,y,z) = value`**. Esiste un soglia filtro, che permette di eliminare dei vertici dal calcolo della isosuperfice. 
+
+Se i punti sono distribuiti con criterio (Magari con una funzione di noise 3D), è possibile ottenere un effetto simile.
+
+![image](https://user-images.githubusercontent.com/55745404/118791662-36915a00-b897-11eb-9a71-aea180486bf7.png)
+
+### Applicazioni
+* Ricostruzione di scansioni mediche, a partire da un volume di dati ottenuto da un apparecchiatura medica.
+
+### Algoritmo
+L'algoritmo è veloce perché utilizza una tabella di punti, permettendo una accesso quasi diretto a combinazioni di triangoli da realizzare. 
+
+Il problema da risolvere è formare un'approssimazione di faccie di una isosuperficie attraverso un campo scalare campionato su una griglia 3D. 
+
+L'algoritmo dovrà scorrere attraverso la griglia 3D con una cella ad 8 vertici. Tramite l'intersecazione di questi punti, filtrati in precedenza, è possibile far capire all'algoritmo quali triangoli creare e in che punto.
+
+La cella di scorrimento avrà una struttura simile.
+
+![image](https://user-images.githubusercontent.com/55745404/118796189-a7d30c00-b89b-11eb-9ab7-b64a13a690c2.png)
+
+Se per esempio 3 è un vertice occupato nella griglia, allora creeremmo un triangolo che taglia i **bordi** 2, 3 ed 11.
+
+![image](https://user-images.githubusercontent.com/55745404/118796486-f2ed1f00-b89b-11eb-9b27-58a4735a729e.png)
+
+Una delle parti più importanti dell'algoritmo, dunque, è capire in che modo possa ricavare queste coppie in maniera efficente. 
+
+#### EdgeTable e TriTable
+Ciò che rende difficile l'algoritmo è l'elevato numero di combinazioni di ogni vertice `2^8 = 256` e la necessità di rendere queste combinazioni cooerenti in modo che i triangoli si colleghino correttamente.
+
+La prima parte dell'algoritmo prevede l'utilizzo di una **EdgeTable** che mappa i vertici centrali ad ogni bordo.
+
+Viene formato un indice a 8 bit (numero dei vertici), dove ogni bit 1 corrisponde al vertice e il numero decimale rappresentato l'indice dei triangoli nella **TriTable**.
 
 ```cs
-mesh.vertices = newVertices;
-mesh.uv = newUV;
-mesh.triangles = newTriangles;
+cubeindex = 0;
+
+if (grid.val [0] <isolevel) cubeindex | = 1;
+if (grid.val [1] <isolevel) cubeindex | = 2;
+if (grid.val [2] <isolevel) cubeindex | = 4;
+if (grid.val [3] <isolevel) cubeindex | = 8;
+if (grid.val [4] <isolevel) cubeindex | = 16;
+if (grid.val [5] <isolevel) cubeindex | = 32;
+if (grid.val [6] <isolevel) cubeindex | = 64;
+if (grid.val [7] <isolevel) cubeindex | = 128;
 ```
 
-### Modificare una mesh su unity
-Quando si modifica, bisogna eseguiti dei passaggi con ordine:
-1) **Prendere i vertici**
-2) **Modificarli**
-3) **Riassegnarli**
-
-```cs
-Mesh mesh = GetComponent<MeshFilter>().mesh;
-Vector3[] vertices = mesh.vertices;
-Vector3[] normals = mesh.normals;
-
-for (var i = 0; i < vertices.Length; i++)
-{
-	vertices[i] += normals[i] * Mathf.Sin(Time.time);
-}
-
-mesh.vertices = vertices;
-```
-
-### Aggiungere o rimuovere vertici
-Quando si aggiunge o rimuove vertici da una mesh, è necessario chiamare prima di tutto il metodo `mesh.Clear()` per assicurarti di non andare out of bounds e avere errori spiacevoli sugli array.
-
-### Normali
-![](Images/Pasted%20image%2020210517012703.png)
-
-### Colori
-![](Images/Pasted%20image%2020210517012747.png)
-![](Images/Pasted%20image%2020210517012856.png)
-Meglio usare come byte per evitare conversioni aggiuntive.
-
-### UV 
-![](Images/Pasted%20image%2020210517012925.png)
-![](Images/Pasted%20image%2020210517012934.png)
-
-## Impostare i vertici è la parte più difficile
-![](Images/Pasted%20image%2020210517013053.png)
-Un esempio semplice, figurati se fosse stata una forma più complessa. E' difficile concettualizzare dove partire con gli indici dei vertici e dei triangoli.
-
-### Mesh con numero di vertici e triangoli dinamici
-
-![](Images/Pasted%20image%2020210517013947.png)
