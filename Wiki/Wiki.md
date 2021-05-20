@@ -1,7 +1,7 @@
 Marching Square Algorithm
 ===
 
-![[Pasted image 20210520173007.png]]
+![](Images/Pasted%20image%2020210520173007.png)
 
 ## Triangoli e Vertici
 I **triangoli** sono una forma base usata nella grafica 3D. 
@@ -48,7 +48,7 @@ Ogni punto, in base ad un algoritmo esterno avrà due stati: Attivo e disattivo.
 
 Se i punti sono distribuiti con criterio (Magari con una funzione di noise 3D), è possibile ottenere un effetto simile.
 
-![Image](Pasted%20image%2020210517163249.png)
+![](Images/Pasted%20image%2020210517163249.png)
 
 ### Algoritmo
 
