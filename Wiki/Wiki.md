@@ -212,4 +212,10 @@ if (grid.val [5] <isolevel) cubeindex | = 32;
 if (grid.val [6] <isolevel) cubeindex | = 64;
 if (grid.val [7] <isolevel) cubeindex | = 128;
 ```
+### Implementazione Marching Squares 
+![image](https://user-images.githubusercontent.com/55745404/118907764-6a649200-b920-11eb-8d52-adbdadb3c585.png)
+![image](https://user-images.githubusercontent.com/55745404/118907891-a7c91f80-b920-11eb-8ad7-cd5c445efd82.png)
+Ogni chunk possiede 8x8 voxel squares, ed una mappa contiene inizialmente 4x4 chunks 
+[Implementazione Marching Squares](https://github.com/Lucaffo/Procedural-World-Generation/tree/main/Procedural%20Voxel%20Terrain%20Generator/Assets/Scenes/Marching%20Squares)
+
 
