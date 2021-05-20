@@ -1,0 +1,113 @@
+{
+  "main": {
+    "id": "371a988d89e770ba",
+    "type": "split",
+    "children": [
+      {
+        "id": "01883601d3bbe239",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Wiki/Wiki.md",
+            "mode": "source"
+          }
+        }
+      },
+      {
+        "id": "5b81602dde742bfe",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Wiki/Wiki.md",
+            "mode": "preview"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "8b6b15d8f3276695",
+    "type": "split",
+    "children": [
+      {
+        "id": "1bd5da15a91bd842",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "75948a04c2b1b42c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "807adbbce8e58dc2",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 228
+  },
+  "right": {
+    "id": "1df9764feee55afe",
+    "type": "split",
+    "children": [
+      {
+        "id": "0a13a7735d99831c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "52357f33bee8e2cf",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Wiki/Wiki.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "01883601d3bbe239",
+  "lastOpenFiles": [
+    "Wiki/Wiki.md",
+    "Pasted image 20210517163249.png",
+    "Wiki/Images/Pasted image 20210517162934.png",
+    "Wiki/Images/Pasted image 20210517130612.png",
+    "Wiki/Images/Pasted image 20210517123243.png",
+    "Images/Pasted image 210517123243.png.md",
+    "Wiki/Images/Pasted image 20210517004041.png",
+    "Wiki/Images/Pasted image 20210517012856.png",
+    "Wiki/Images/Pasted image 20210517130603.png",
+    "Wiki/Images/Pasted image 20210517124222.png"
+  ]
+}
