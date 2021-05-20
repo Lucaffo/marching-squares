@@ -22,12 +22,33 @@ namespace Procedural.Marching.Squares
 
         private void Awake()
         {
+            Initialize();
+        }
+
+        [ContextMenu("Refresh voxel map")]
+        public void Refresh()
+        {
+            if(chunks != null)
+            {
+                foreach (VoxelChunk chunk in chunks)
+                {
+                    if (chunk != null)
+                        Destroy(chunk.gameObject);
+                }
+                chunks.Clear();
+            }
+            
+            Initialize();
+        }
+
+        private void Initialize()
+        {
             halfSize = mapResolution * 0.5f;
             chunkSize = mapResolution / chunkResolution;
             voxelSize = chunkSize / voxelResolution;
 
             chunks = new List<VoxelChunk>();
-            
+
             int chunkIndex = 0;
 
             for (int y = 0; y < chunkResolution; y++)
@@ -45,7 +66,7 @@ namespace Procedural.Marching.Squares
             VoxelChunk chunk = Instantiate(chunkPrefab);
             chunk.Initialize(voxelResolution, chunkSize);
             chunk.transform.parent = transform;
-            chunk.transform.localPosition = new Vector3(x * chunkSize - halfSize, y * chunkSize - halfSize);
+            chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
             chunks.Add(chunk);
         }
     }

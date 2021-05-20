@@ -11,10 +11,6 @@ namespace Procedural.Marching.Squares
         public VoxelSquare voxelQuadPrefab;
         [Range(0f, 1f)] public float voxelScale = 0.1f;
         
-        [HideInInspector] public VoxelChunk topChunk;
-        [HideInInspector] public VoxelChunk rightChunk;
-        [HideInInspector] public VoxelChunk toprightChunk;
-
         private int chunkResolution;
 
         private VoxelSquare[] voxels;
@@ -28,9 +24,9 @@ namespace Procedural.Marching.Squares
         private List<Vector3> vertices;
         private List<int> triangles;
 
-        public void Initialize(int chunkResolution, float chunkSize)
+        public void Initialize(int chunkRes, float chunkSize)
         {
-            this.chunkResolution = chunkResolution;
+            this.chunkResolution = chunkRes;
             this.chunkSize = chunkSize;
 
             // Greater the resolution, less is the size of the voxel
@@ -69,12 +65,12 @@ namespace Procedural.Marching.Squares
             VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
             voxelSquare.transform.parent = transform;
             voxelSquare.transform.localScale = Vector3.one * voxelSize * voxelScale;
-            voxelSquare.transform.localPosition = new Vector3((x + 0.5f) * voxelSize, (y + 0.5f) * voxelSize);
+            voxelSquare.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
             voxelSquare.Initialize(x, y, voxelSize);
             voxels[voxelIndex] = voxelSquare;
         }
 
-        private void Refresh()
+        public void Refresh()
         {
             foreach(VoxelSquare voxel in voxels)
             {
@@ -91,15 +87,17 @@ namespace Procedural.Marching.Squares
             chunkMesh.Clear();
             
             int cells = chunkResolution - 1;
-            for (int i = 0, y = 0; y < cells; y++, i++)
+            int voxelIndex = 0;
+
+            for (int y = 0; y < cells; y++, voxelIndex++)
             {
-                for (int x = 0; x < cells; x++, i++)
+                for (int x = 0; x < cells; x++, voxelIndex++)
                 {
                     TriangulateVoxel(
-                        voxels[i],
-                        voxels[i + 1],
-                        voxels[i + chunkResolution],
-                        voxels[i + chunkResolution + 1]);
+                        voxels[voxelIndex],
+                        voxels[voxelIndex + 1],
+                        voxels[voxelIndex + chunkResolution],
+                        voxels[voxelIndex + chunkResolution + 1]);
                 }
             }
 

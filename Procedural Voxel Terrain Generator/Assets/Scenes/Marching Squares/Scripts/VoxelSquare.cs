@@ -17,8 +17,8 @@ namespace Procedural.Marching.Squares
         public void Initialize(int x, int y, float size)
         {
             // Calculate its mainly 2 edge positions
-            position.x = (x + 0.5f) * size;
-            position.y = (y + 0.5f) * size;
+            position.x = (x) * size;
+            position.y = (y) * size;
 
             xEdgePosition = position;
             xEdgePosition.x += size * 0.5f;

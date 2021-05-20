@@ -343,6 +343,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapResolution: 4
-  chunkResolution: 4
+  chunkResolution: 2
   chunkPrefab: {fileID: 8477545550259858425, guid: eb27a3dc887ff9b4eb0636ae0e53e07d, type: 3}
-  voxelResolution: 8
+  voxelResolution: 5
