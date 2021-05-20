@@ -1,8 +1,8 @@
-Procedural World Generation
+Marching Squares Algorithm
 ===
 Questo progetto è il risultato di una ricerca che sto portando avanti sulla generazione procedurale di contenuti, analizzando in particolare la generazione di mondi infiniti. 
 
-Lo scopo della ricerca è l'analisi degli algoritmi di noising, la generazione procedurale di mesh e la simulazione di un landscape naturale e più simile alla realtà. 
+Lo scopo della ricerca è l'analisi degli algoritmi di marching e di noising, la generazione procedurale di mesh e la simulazione di un landscape naturale e più simile alla realtà. 
 
 #### [Wiki](/Wiki/Wiki.md)
 Ho realizzato una [wiki](/Wiki/Wiki.md) apposita, dove è possibile consultare le mie ricerche e approfondire la teoria dietro il progetto. 
