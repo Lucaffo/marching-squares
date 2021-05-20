@@ -1,4 +1,4 @@
-Procedural World Generation
+Marching Square Algorithm
 ===
 ## Triangoli e Vertici
 I **triangoli** sono una forma base usata nella grafica 3D. 
