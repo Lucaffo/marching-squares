@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using NoiseGenerator;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Procedural.Marching.Squares
 {
     public class VoxelMap : MonoBehaviour
     {
+        [Header("Noise")]
+        public Noise noiseGenerator;
+        public float refreshTime = 1f; private float timer = 0f;
+
         [Header("Map settings")]
         public int mapResolution = 2;
 
@@ -25,19 +30,30 @@ namespace Procedural.Marching.Squares
             Initialize();
         }
 
+        private void Update()
+        {
+            timer += Time.deltaTime;
+
+            if(timer >= refreshTime && refreshTime != 0)
+            {
+                Refresh();
+                timer = 0;
+            }
+        }
+
         [ContextMenu("Refresh voxel map")]
         public void Refresh()
         {
             if(chunks != null)
             {
-                foreach (VoxelChunk chunk in chunks)
-                {
-                    if (chunk != null)
-                        Destroy(chunk.gameObject);
-                }
                 chunks.Clear();
             }
-            
+
+            foreach (Transform child in transform)
+            {
+                Destroy(child.gameObject);
+            }
+
             Initialize();
         }
 
@@ -64,9 +80,10 @@ namespace Procedural.Marching.Squares
         public void CreateChunkAt(int chunkIndex, int x, int y)
         {
             VoxelChunk chunk = Instantiate(chunkPrefab);
-            chunk.Initialize(voxelResolution, chunkSize);
+            chunk.SetNoiseGenerator(noiseGenerator);
             chunk.transform.parent = transform;
             chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
+            chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
         }
     }

@@ -1,3 +1,4 @@
+using NoiseGenerator;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace Procedural.Marching.Squares
         [Range(0f, 1f)] public float voxelScale = 0.1f;
         
         private int chunkResolution;
+        private Vector3 chunkOffset;
 
         private VoxelSquare[] voxels;
         private float voxelSize, chunkSize;
@@ -24,10 +26,14 @@ namespace Procedural.Marching.Squares
         private List<Vector3> vertices;
         private List<int> triangles;
 
+        private Noise noiseGenerator;
+
         public void Initialize(int chunkRes, float chunkSize)
         {
             this.chunkResolution = chunkRes;
             this.chunkSize = chunkSize;
+            
+            chunkOffset = new Vector3(transform.localPosition.x * chunkResolution, transform.localPosition.y * chunkResolution);
 
             // Greater the resolution, less is the size of the voxel
             voxelSize = chunkSize / chunkResolution;
@@ -60,13 +66,14 @@ namespace Procedural.Marching.Squares
             Refresh();
         }
 
-        private void CreateVoxel(int voxelIndex, int x, int y)
+        private void CreateVoxel(int voxelIndex, float x, float y)
         {
             VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
             voxelSquare.transform.parent = transform;
             voxelSquare.transform.localScale = Vector3.one * voxelSize * voxelScale;
             voxelSquare.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
             voxelSquare.Initialize(x, y, voxelSize);
+            voxelSquare.SetUsedByMarching(noiseGenerator.Generate(x, y) > noiseGenerator.threshold);
             voxels[voxelIndex] = voxelSquare;
         }
 
@@ -77,6 +84,11 @@ namespace Procedural.Marching.Squares
                 voxel.UpdateVoxelColor();
             }
             TriangulateVoxels();
+        }
+
+        public void SetNoiseGenerator(Noise noiseGenerator)
+        {
+            this.noiseGenerator = noiseGenerator;
         }
 
         public void TriangulateVoxels()
@@ -104,25 +116,26 @@ namespace Procedural.Marching.Squares
             chunkMesh.SetVertices(vertices);
             chunkMesh.triangles = triangles.ToArray();
         }
-        
+
+        #region Triangulation functions
 
         public void TriangulateVoxel(VoxelSquare a, VoxelSquare b, VoxelSquare c, VoxelSquare d)
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
-            if (a.isRegarded)
+            if (a.isUsedByMarching)
             {
                 cellType |= 1;
             }
-            if (b.isRegarded)
+            if (b.isUsedByMarching)
             {
                 cellType |= 2;
             }
-            if (c.isRegarded)
+            if (c.isUsedByMarching)
             {
                 cellType |= 4;
             }
-            if (d.isRegarded)
+            if (d.isUsedByMarching)
             {
                 cellType |= 8;
             }
@@ -225,5 +238,7 @@ namespace Procedural.Marching.Squares
             triangles.Add(vertexIndex + 3);
             triangles.Add(vertexIndex + 4);
         }
+
+        #endregion
     }
 }

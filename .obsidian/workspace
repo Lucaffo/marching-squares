@@ -6,6 +6,7 @@
       {
         "id": "01883601d3bbe239",
         "type": "leaf",
+        "dimension": 54.82954545454546,
         "state": {
           "type": "markdown",
           "state": {
@@ -17,6 +18,7 @@
       {
         "id": "5b81602dde742bfe",
         "type": "leaf",
+        "dimension": 45.17045454545455,
         "state": {
           "type": "markdown",
           "state": {
@@ -100,14 +102,14 @@
   "active": "01883601d3bbe239",
   "lastOpenFiles": [
     "Wiki/Wiki.md",
-    "Pasted image 20210517163249.png",
+    "README.md",
+    "Wiki/Noise Theory.md",
+    "Wiki/Images/Pasted image 20210517163249.png",
+    "Wiki/Images/Pasted image 20210517163609.png",
     "Wiki/Images/Pasted image 20210517162934.png",
-    "Wiki/Images/Pasted image 20210517130612.png",
-    "Wiki/Images/Pasted image 20210517123243.png",
-    "Images/Pasted image 210517123243.png.md",
+    "Wiki/Images/Pasted image 20210520173007.png",
+    "Pasted image 20210520173007.png",
     "Wiki/Images/Pasted image 20210517004041.png",
-    "Wiki/Images/Pasted image 20210517012856.png",
-    "Wiki/Images/Pasted image 20210517130603.png",
-    "Wiki/Images/Pasted image 20210517124222.png"
+    "Wiki/Images/Untitled.md"
   ]
 }

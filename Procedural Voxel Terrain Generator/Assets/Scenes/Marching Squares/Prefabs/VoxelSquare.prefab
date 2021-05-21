@@ -94,8 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f4093706721d48488679811be0a5e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isRegardedPercentage: 50
-  isRegarded: 0
+  isUsedByMarching: 0
   position: {x: 0, y: 0}
   xEdgePosition: {x: 0, y: 0}
   yEdgePosition: {x: 0, y: 0}
