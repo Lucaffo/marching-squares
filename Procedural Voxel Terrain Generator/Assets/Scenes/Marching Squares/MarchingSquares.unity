@@ -269,7 +269,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -342,7 +342,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d401c2552a63b9046878df7c58ff8275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapResolution: 4
-  chunkResolution: 2
+  noiseGenerator: {fileID: 11400000, guid: 88169d8230317bf40aefb1f574b34a9e, type: 2}
+  refreshTime: 1
+  mapResolution: 5
+  chunkResolution: 1
   chunkPrefab: {fileID: 8477545550259858425, guid: eb27a3dc887ff9b4eb0636ae0e53e07d, type: 3}
-  voxelResolution: 5
+  voxelResolution: 20
