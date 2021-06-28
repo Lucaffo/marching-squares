@@ -24,7 +24,7 @@ namespace Procedural.Marching.Squares
         private List<VoxelChunk> chunks;
 
         private float chunkSize, voxelSize, halfSize;
-
+        
         private void Awake()
         {
             Initialize();
@@ -49,12 +49,22 @@ namespace Procedural.Marching.Squares
                 chunks.Clear();
             }
 
-            foreach (Transform child in transform)
+            foreach (VoxelChunk chunk in transform.GetComponentsInChildren<VoxelChunk>())
             {
-                Destroy(child.gameObject);
+                Destroy(chunk.gameObject);
             }
 
             Initialize();
+        }
+
+        public void CreateChunkAt(int chunkIndex, int x, int y)
+        {
+            VoxelChunk chunk = Instantiate(chunkPrefab);
+            chunk.SetNoiseGenerator(noiseGenerator);
+            chunk.transform.parent = transform;
+            chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
+            chunk.Initialize(voxelResolution, chunkSize);
+            chunks.Add(chunk);
         }
 
         private void Initialize()
@@ -75,16 +85,6 @@ namespace Procedural.Marching.Squares
                     chunkIndex++;
                 }
             }
-        }
-
-        public void CreateChunkAt(int chunkIndex, int x, int y)
-        {
-            VoxelChunk chunk = Instantiate(chunkPrefab);
-            chunk.SetNoiseGenerator(noiseGenerator);
-            chunk.transform.parent = transform;
-            chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
-            chunk.Initialize(voxelResolution, chunkSize);
-            chunks.Add(chunk);
         }
     }
 }
