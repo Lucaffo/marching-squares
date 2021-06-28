@@ -19,7 +19,7 @@ namespace Procedural.Marching.Squares
 
         [Header("Voxel settings")]
         public int voxelResolution = 8;
-
+        
         // Chunks array
         private List<VoxelChunk> chunks;
 
@@ -65,6 +65,11 @@ namespace Procedural.Marching.Squares
             chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
             chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
+        }
+
+        public void AddNoiseOffset(Vector3 offset)
+        {
+            noiseGenerator.AddOffset((Vector2) offset);
         }
 
         private void Initialize()

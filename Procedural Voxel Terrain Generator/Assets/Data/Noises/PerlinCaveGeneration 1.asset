@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b165e630939158b47ac6f08caed4e47c, type: 3}
-  m_Name: PerlinAsteroidsGeneration
+  m_Name: PerlinCaveGeneration 1
   m_EditorClassIdentifier: 
-  threshold: 0.742
-  frequence: {x: 6, y: 6, z: 0}
-  offset: {x: 1.5, y: 2, z: 2}
+  threshold: 0.48
+  frequence: {x: 4, y: 4, z: 0}
+  offset: {x: 2, y: 2, z: 2}
   amplitude: 1
+  useTime: 0
+  timeScale: 0.5
