@@ -24,6 +24,7 @@ namespace Procedural.Marching.Squares
 
         // Vertices and triangles of all the voxels square in chunk
         private List<Vector3> vertices;
+        private List<Vector2> uvs;
         private List<int> triangles;
 
         private Noise noiseGenerator;
@@ -62,6 +63,7 @@ namespace Procedural.Marching.Squares
             // Initialize vertices and triangles lists
             vertices = new List<Vector3>();
             triangles = new List<int>();
+            uvs = new List<Vector2>();
 
             Refresh();
         }
@@ -95,6 +97,7 @@ namespace Procedural.Marching.Squares
         {
             // Clear all
             vertices.Clear();
+            uvs.Clear();
             triangles.Clear();
             chunkMesh.Clear();
             
@@ -113,7 +116,11 @@ namespace Procedural.Marching.Squares
                 }
             }
 
+            Debug.Log(uvs.Count);
+            Debug.Log(vertices.Count);
+
             chunkMesh.SetVertices(vertices);
+            chunkMesh.SetUVs(0, uvs);
             chunkMesh.triangles = triangles.ToArray();
         }
 
@@ -200,9 +207,16 @@ namespace Procedural.Marching.Squares
             vertices.Add(a);
             vertices.Add(b);
             vertices.Add(c);
+
+            // Add uvs
+            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
+
         }
 
         private void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
@@ -212,9 +226,16 @@ namespace Procedural.Marching.Squares
             vertices.Add(b);
             vertices.Add(c);
             vertices.Add(d);
+            
+            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 2);
             triangles.Add(vertexIndex + 3);
@@ -228,15 +249,25 @@ namespace Procedural.Marching.Squares
             vertices.Add(c);
             vertices.Add(d);
             vertices.Add(e);
+            
+            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
+            uvs.Add(Vector2.right * vertices[vertexIndex + 4].x + Vector2.up * vertices[vertexIndex + 4].y);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 2);
             triangles.Add(vertexIndex + 3);
+
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 3);
             triangles.Add(vertexIndex + 4);
+
         }
 
         #endregion
