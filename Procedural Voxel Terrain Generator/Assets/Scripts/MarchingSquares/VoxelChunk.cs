@@ -1,6 +1,7 @@
 using NoiseGenerator;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Procedural.Marching.Squares
 {
@@ -21,6 +22,8 @@ namespace Procedural.Marching.Squares
         
         // The entire chunk mesh
         private Mesh chunkMesh;
+        private MeshFilter chunkMeshFilter;
+        private MeshCollider chunkMeshCollider;
 
         // Vertices and triangles of all the voxels square in chunk
         private List<Vector3> vertices;
@@ -28,7 +31,7 @@ namespace Procedural.Marching.Squares
         private List<int> triangles;
 
         private Noise noiseGenerator;
-
+        
         public void Initialize(int chunkRes, float chunkSize)
         {
             this.chunkResolution = chunkRes;
@@ -57,9 +60,12 @@ namespace Procedural.Marching.Squares
             }
             
             // Get the chunk mesh component
-            chunkMesh = GetComponent<MeshFilter>().mesh;
+            chunkMeshFilter = GetComponent<MeshFilter>();
+            chunkMeshCollider = GetComponent<MeshCollider>();
+
+            chunkMesh = chunkMeshFilter.mesh;
             chunkMesh.name = "VoxelGrid Mesh";
-            
+
             // Initialize vertices and triangles lists
             vertices = new List<Vector3>();
             triangles = new List<int>();
@@ -85,7 +91,18 @@ namespace Procedural.Marching.Squares
             {
                 voxel.UpdateVoxelColor();
             }
+
             TriangulateVoxels();
+
+            // Apply mesh to mesh collider
+            Mesh colliderMesh = new Mesh();
+            
+            colliderMesh.indexFormat = IndexFormat.UInt32;
+
+            colliderMesh.vertices = vertices.ToArray();
+            colliderMesh.triangles = triangles.ToArray();
+            
+            chunkMeshCollider.sharedMesh = colliderMesh;
         }
 
         public void SetNoiseGenerator(Noise noiseGenerator)
@@ -115,9 +132,6 @@ namespace Procedural.Marching.Squares
                         voxels[voxelIndex + chunkResolution + 1]);
                 }
             }
-
-            Debug.Log(uvs.Count);
-            Debug.Log(vertices.Count);
 
             chunkMesh.SetVertices(vertices);
             chunkMesh.SetUVs(0, uvs);
