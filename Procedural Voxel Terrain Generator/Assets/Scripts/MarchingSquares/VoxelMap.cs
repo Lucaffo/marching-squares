@@ -32,13 +32,13 @@ namespace Procedural.Marching.Squares
 
         private void Update()
         {
-            timer += Time.deltaTime;
+            /* timer += Time.deltaTime;
 
             if(timer >= refreshTime && refreshTime != 0)
             {
                 Refresh();
                 timer = 0;
-            }
+            }*/ 
         }
 
         [ContextMenu("Refresh voxel map")]
@@ -70,6 +70,7 @@ namespace Procedural.Marching.Squares
         public void AddNoiseOffset(Vector3 offset)
         {
             noiseGenerator.AddOffset((Vector2) offset);
+            Refresh();
         }
 
         private void Initialize()

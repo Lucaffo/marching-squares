@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MarchingSquares.unity
+    guid: d0d5fb6ec335cf04c937d0aada638afe
   m_configObjects: {}
