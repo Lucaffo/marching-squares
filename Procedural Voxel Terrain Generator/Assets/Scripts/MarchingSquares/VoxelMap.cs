@@ -8,10 +8,13 @@ namespace Procedural.Marching.Squares
     {
         [Header("Noise")]
         public Noise noiseGenerator;
-        public float refreshTime = 1f; private float timer = 0f;
 
         [Header("Map settings")]
         public int mapResolution = 2;
+        public bool useInterpolation = false;
+        public bool autoRefresh = false;
+        public float refreshTime = 1f;
+        private float timer = 0f;
 
         [Header("Chunk settings")]
         public int chunkResolution = 2;
@@ -32,26 +35,36 @@ namespace Procedural.Marching.Squares
 
         private void Update()
         {
-            /* timer += Time.deltaTime;
-
-            if(timer >= refreshTime && refreshTime != 0)
+            if(autoRefresh)
             {
-                Refresh();
-                timer = 0;
-            }*/ 
+                timer += Time.deltaTime;
+
+                if (timer >= refreshTime && refreshTime != 0)
+                {
+                    Refresh();
+                    timer = 0;
+                }
+            }
         }
 
         [ContextMenu("Refresh voxel map")]
         public void Refresh()
         {
-            if(chunks != null)
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                if(Application.isEditor)
+                {
+                    DestroyImmediate(transform.GetChild(i).gameObject);
+                }
+                else
+                {
+                    Destroy(transform.GetChild(i).gameObject);
+                }
+            }
+            
+            if (chunks != null)
             {
                 chunks.Clear();
-            }
-
-            foreach (VoxelChunk chunk in transform.GetComponentsInChildren<VoxelChunk>())
-            {
-                Destroy(chunk.gameObject);
             }
 
             Initialize();
@@ -63,7 +76,7 @@ namespace Procedural.Marching.Squares
             chunk.SetNoiseGenerator(noiseGenerator);
             chunk.transform.parent = transform;
             chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
-            chunk.Initialize(voxelResolution, chunkSize);
+            chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
             chunks.Add(chunk);
         }
 
@@ -71,6 +84,11 @@ namespace Procedural.Marching.Squares
         {
             noiseGenerator.AddOffset((Vector2) offset);
             Refresh();
+        }
+
+        public void SetNoiseOffset(Vector2 offset)
+        {
+            noiseGenerator.SetOffset(offset);
         }
 
         private void Initialize()

@@ -7,25 +7,43 @@ public class Ship : MonoBehaviour
     public VoxelMap map;
     public GameObject child;
 
-    [Header("Ship settings")]
+    [Header("Movement settings")]
+    public bool scrollMap;
+    public float scrollSpeed = 0.1f;
+    public bool applyVelocity;
+    public float movementSpeed = 2f;
     public float rotationSpeed = 2f;
 
+    [Header("Ship settings")]
+    public bool godMode;
+
     private Vector2 inputDirection;
-    
+    private Rigidbody rigidbody;
+
+    private void Awake()
+    {
+        rigidbody = GetComponent<Rigidbody>();
+    }
+
     private void Update()
     {
         inputDirection = Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical");
         inputDirection.Normalize();
 
-        inputDirection *= 0.2f;
-
         if (map && inputDirection.sqrMagnitude != 0)
         {
-            map.AddNoiseOffset(inputDirection);
+            if(scrollMap)
+                map.AddNoiseOffset(inputDirection * scrollSpeed);
 
             // Rotate with input direction
             RotateShipToward(inputDirection);
         }
+    }
+
+    private void FixedUpdate()
+    {
+        if(applyVelocity)
+            rigidbody.velocity += (Vector3) (inputDirection * movementSpeed * Time.fixedDeltaTime);
     }
 
     private void RotateShipToward(Vector2 direction)
@@ -37,7 +55,10 @@ public class Ship : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Game Over");
-        Destroy(gameObject);
+        if(!godMode)
+        {
+            Debug.Log("Game Over");
+            Destroy(child);
+        }
     }
 }

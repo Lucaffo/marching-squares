@@ -42,5 +42,15 @@ namespace NoiseGenerator
         {
             this.offset += offset;
         }
+
+        public override void SetOffset(Vector2 offset)
+        {
+            this.offset = offset;
+        }
+
+        public override void SetOffset(Vector3 offset)
+        {
+            this.offset = offset;
+        }
     }
 }

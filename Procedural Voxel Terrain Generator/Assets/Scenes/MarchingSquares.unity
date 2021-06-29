@@ -214,7 +214,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
 --- !u!1 &505546520
 GameObject:
@@ -269,7 +269,7 @@ Camera:
   far clip plane: 50
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 12
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -292,11 +292,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 505546520}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25, y: 25, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1163717265}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1163717264
@@ -326,12 +326,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1163717264}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25, y: 25, z: 0}
+  m_LocalPosition: {x: 22.41, y: 22.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 505546523}
   - {fileID: 1421107990}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1163717266
 Rigidbody:
@@ -347,7 +348,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &1163717267
 MonoBehaviour:
@@ -363,7 +364,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 1795261779}
   child: {fileID: 1421107989}
+  scrollMap: 0
+  scrollSpeed: 0.1
+  applyVelocity: 0
+  movementSpeed: 5
   rotationSpeed: 5
+  godMode: 1
 --- !u!135 &1163717268
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -406,7 +412,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1163717265}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1421107991
 SpriteRenderer:
@@ -488,7 +494,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1795261779
 MonoBehaviour:
@@ -503,8 +509,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseGenerator: {fileID: 11400000, guid: 88169d8230317bf40aefb1f574b34a9e, type: 2}
-  refreshTime: 0.05
   mapResolution: 50
+  useInterpolation: 1
+  autoRefresh: 0
+  refreshTime: 0.5
   chunkResolution: 1
   chunkPrefab: {fileID: 8477545550259858425, guid: eb27a3dc887ff9b4eb0636ae0e53e07d, type: 3}
-  voxelResolution: 50
+  voxelResolution: 20

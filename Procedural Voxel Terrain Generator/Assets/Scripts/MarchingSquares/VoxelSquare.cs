@@ -5,6 +5,7 @@ namespace Procedural.Marching.Squares
     public class VoxelSquare : MonoBehaviour
     {
         [Header("Voxel square settings")]
+        public float value;
         public bool isUsedByMarching;
         public Vector2 position, xEdgePosition, yEdgePosition;
         private float size;
@@ -24,7 +25,7 @@ namespace Procedural.Marching.Squares
             xEdgePosition.x += size * 0.5f;
             yEdgePosition = position;
             yEdgePosition.y += size * 0.5f;
-
+            
             this.size = size;
         }
 
