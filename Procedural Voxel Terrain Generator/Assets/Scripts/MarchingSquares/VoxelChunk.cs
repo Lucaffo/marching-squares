@@ -130,7 +130,7 @@ namespace Procedural.Marching.Squares
             {
                 for (int x = 0; x < cells; x++, voxelIndex++)
                 {
-                    TriangulateVoxel(x, y,
+                    TriangulateVoxel(
                         voxels[voxelIndex],
                         voxels[voxelIndex + 1],
                         voxels[voxelIndex + chunkResolution],
@@ -145,7 +145,8 @@ namespace Procedural.Marching.Squares
 
         #region Triangulation functions
 
-        public void TriangulateVoxel(int x, int y, VoxelSquare a, VoxelSquare b, VoxelSquare c, VoxelSquare d)
+        public void TriangulateVoxel(VoxelSquare a, VoxelSquare b, 
+                                     VoxelSquare c, VoxelSquare d)
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
@@ -334,7 +335,6 @@ namespace Procedural.Marching.Squares
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
             triangles.Add(vertexIndex + 2);
-
         }
 
         private void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)

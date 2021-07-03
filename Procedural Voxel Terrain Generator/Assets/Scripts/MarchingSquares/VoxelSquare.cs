@@ -11,6 +11,7 @@ namespace Procedural.Marching.Squares
         private float size;
 
         [Header("Points clouds colors")]
+        public bool drawGizmos;
         public Color isUsedColor;
         public Color isNotUsedColor;
         private Color currentPointColor;
@@ -42,8 +43,11 @@ namespace Procedural.Marching.Squares
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = currentPointColor;
-            Gizmos.DrawCube(position, Vector2.one * size * 0.5f);
+            if(drawGizmos)
+            {
+                Gizmos.color = currentPointColor;
+                Gizmos.DrawCube(position, Vector2.one * size * 0.5f);
+            }
         }
     }
 }

@@ -43,9 +43,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f4093706721d48488679811be0a5e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  value: 0
   isUsedByMarching: 0
   position: {x: 0, y: 0}
   xEdgePosition: {x: 0, y: 0}
   yEdgePosition: {x: 0, y: 0}
-  isUsedColor: {r: 0.37707856, g: 1, b: 0.02352941, a: 1}
-  isNotUsedColor: {r: 0.48796234, g: 0.02352941, b: 1, a: 0.015686275}
+  drawGizmos: 1
+  isUsedColor: {r: 0, g: 0, b: 0, a: 1}
+  isNotUsedColor: {r: 1, g: 1, b: 1, a: 1}
