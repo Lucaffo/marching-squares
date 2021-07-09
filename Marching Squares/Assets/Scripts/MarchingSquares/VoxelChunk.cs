@@ -86,7 +86,7 @@ namespace Procedural.Marching.Squares
             voxelSquare.Initialize(x, y, voxelSize);
 
             voxelSquare.value = noiseGenerator.Generate(x, y);
-            voxelSquare.SetUsedByMarching(voxelSquare.value > noiseGenerator.threshold);
+            voxelSquare.SetUsedByMarching(voxelSquare.value > noiseGenerator.isoLevel);
             voxels[voxelIndex] = voxelSquare;
         }
 

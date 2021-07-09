@@ -4,7 +4,6 @@ namespace NoiseGenerator
 {
     public abstract class Noise : ScriptableObject
     {
-        [Range(0, 1)] public float threshold;
         [Range(0, 1)] public float isoLevel;
 
         public abstract float Generate(float x, float y);
