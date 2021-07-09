@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b165e630939158b47ac6f08caed4e47c, type: 3}
   m_Name: PerlinAsteroidsGeneration
   m_EditorClassIdentifier: 
-  threshold: 0.656
-  isoLevel: 0.65
-  frequence: {x: 10, y: 10, z: 0}
-  offset: {x: -9.307888, y: 12.9968, z: 0}
+  threshold: 0.409
+  isoLevel: 0.409
+  frequence: {x: 4, y: 4, z: 0}
+  offset: {x: 0, y: 0, z: 0}
   amplitude: 1
   useTime: 0
   timeScale: 0
