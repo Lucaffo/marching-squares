@@ -7,12 +7,17 @@ namespace MarchingSquare.Utils
     {
         [Header("Settings parameters")]
         public float scrollSpeed = 1.0f;
+        public bool timeScroll = false;
 
         // Scrolling voxel map
         private VoxelMap map;
 
         // Get the input direction
         private Vector2 inputDirection;
+
+        // Used by the condition time scroll
+        private float time;
+        private Vector2 timeDirection;
 
         private void Start()
         {
@@ -21,10 +26,21 @@ namespace MarchingSquare.Utils
 
         private void Update()
         {
-            inputDirection = Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical");
+            if(timeScroll)
+            {
+                time = Time.deltaTime;
+                timeDirection = Vector2.one * time;
+            }
+            else
+            {
+                time = 0f;
+                timeDirection = Vector2.zero;
+            }
+
+            inputDirection = (Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical")) * Time.deltaTime;
             inputDirection.Normalize();
 
-            map.AddNoiseOffset(inputDirection * scrollSpeed);
+            map.AddNoiseOffset(inputDirection * scrollSpeed + timeDirection * scrollSpeed);
         }
     }
 }

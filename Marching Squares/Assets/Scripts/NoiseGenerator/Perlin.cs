@@ -8,24 +8,10 @@ namespace NoiseGenerator
         public Vector3 frequence;
         public Vector3 offset;
         public float amplitude;
-
-        [Header("Debug settings")]
-        public bool useTime;
-        public float timeScale;
-        private float time;
         
         public override float Generate(float x, float y)
         {
-            if(useTime)
-            {
-                time = Time.time * timeScale;
-            }
-            else
-            {
-                time = 0f;
-            }
-
-            return amplitude * Mathf.PerlinNoise(x / frequence.x + offset.x + time, y / frequence.y + offset.y + time);
+            return amplitude * Mathf.PerlinNoise(x / frequence.x + offset.x, y / frequence.y + offset.y);
         }
 
         public override float Generate(float x, float y, float z)
