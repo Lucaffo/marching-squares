@@ -18,10 +18,25 @@ namespace Procedural.Marching.Squares
         private Color currentPointColor;
 
         private MeshRenderer meshRenderer;
+        private MeshFilter meshFilter;
 
         private void Awake()
         {
            meshRenderer = GetComponent<MeshRenderer>();
+           meshFilter = GetComponent<MeshFilter>();
+        }
+
+        private void OnDestroy()
+        {
+            // If an istance of a material is created,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(meshRenderer.material);
+
+            // If a mesh is created manually,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(meshFilter.mesh);
         }
 
         public void Initialize(float x, float y, float size)

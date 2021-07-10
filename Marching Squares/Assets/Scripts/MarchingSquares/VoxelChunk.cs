@@ -1,5 +1,4 @@
 using NoiseGenerator;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -25,6 +24,7 @@ namespace Procedural.Marching.Squares
         private Mesh chunkMesh;
         private MeshFilter chunkMeshFilter;
         private MeshCollider chunkMeshCollider;
+        private MeshRenderer chunkMeshRenderer;
 
         // Vertices and triangles of all the voxels square in chunk
         private List<Vector3> vertices;
@@ -59,6 +59,7 @@ namespace Procedural.Marching.Squares
             // Get the chunk mesh component
             chunkMeshFilter = GetComponent<MeshFilter>();
             chunkMeshCollider = GetComponent<MeshCollider>();
+            chunkMeshRenderer = GetComponent<MeshRenderer>();
             
             chunkMesh = chunkMeshFilter.mesh;
             chunkMesh.name = "VoxelGrid Mesh";
@@ -69,6 +70,26 @@ namespace Procedural.Marching.Squares
             uvs = new List<Vector2>();
 
             Refresh();
+        }
+
+        private void OnDestroy()
+        {
+            // If an istance of a material is created,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(chunkMeshRenderer.material);
+
+            // If a mesh is created manually,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(chunkMeshFilter.mesh);
+
+            // This little shit make me lose 20 minutes of my life for line 127
+            Destroy(chunkMeshCollider.sharedMesh);
+
+            // Clearn the chunk mesh and destroy it
+            chunkMesh.Clear();
+            Destroy(chunkMesh);
         }
 
         internal void SetVoxelScale(float voxelScale)

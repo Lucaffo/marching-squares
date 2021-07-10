@@ -1,7 +1,6 @@
-﻿using Procedural.Marching.Squares;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace MarchingSquare.Utils
+namespace Procedural.Marching.Squares.Utils
 {
     public class NoiseOffsetMover : MonoBehaviour
     {
@@ -40,7 +39,11 @@ namespace MarchingSquare.Utils
             inputDirection = (Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical")) * Time.deltaTime;
             inputDirection.Normalize();
 
-            map.AddNoiseOffset(inputDirection * scrollSpeed + timeDirection * scrollSpeed);
+            // Don't scroll if any direction is 0
+            if(inputDirection.sqrMagnitude != 0 || timeDirection.sqrMagnitude != 0)
+            {
+                map.AddNoiseOffset(inputDirection * scrollSpeed + timeDirection * scrollSpeed);
+            }
         }
     }
 }
