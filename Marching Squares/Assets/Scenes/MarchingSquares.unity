@@ -214,7 +214,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
 --- !u!1 &32751221
 GameObject:
@@ -348,7 +348,7 @@ Camera:
   far clip plane: 50
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 23.75773
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -372,7 +372,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 505546520}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 22.41, y: 22.16, z: 0}
+  m_LocalPosition: {x: 42.22, y: 23.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -385,14 +385,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 505546520}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 912aa2d528003d5499b4659c9076d5de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   followTarget: {fileID: 1163717265}
   followSpeed: 5
-  followOrtographicSize: 23.5
+  followOrtographicSize: 24.6135
   confiner: {fileID: 1427131171}
 --- !u!1 &770970327
 GameObject:
@@ -707,7 +707,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1427131170
 Transform:
   m_ObjectHideFlags: 0
@@ -778,7 +778,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1795261779
 MonoBehaviour:

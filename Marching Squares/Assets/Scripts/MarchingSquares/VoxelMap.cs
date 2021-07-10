@@ -12,9 +12,6 @@ namespace Procedural.Marching.Squares
         [Header("Map settings")]
         public int mapResolution = 2;
         public bool useInterpolation = false;
-        public bool autoRefresh = false;
-        public float refreshTime = 1f;
-        private float timer = 0f;
 
         [Header("Chunk settings")]
         public int chunkResolution = 2;
@@ -22,29 +19,17 @@ namespace Procedural.Marching.Squares
 
         [Header("Voxel settings")]
         public int voxelResolution = 8;
+        public bool showVoxelPointGrid = false;
+        [Range(0f, 1f)] public float voxelScale = 0.1f;
         
         // Chunks array
         private List<VoxelChunk> chunks;
 
-        private float chunkSize, voxelSize, halfSize;
+        private float chunkSize, voxelSize;
         
         private void Awake()
         {
             Initialize();
-        }
-
-        private void Update()
-        {
-            if(autoRefresh)
-            {
-                timer += Time.deltaTime;
-
-                if (timer >= refreshTime && refreshTime != 0)
-                {
-                    Refresh();
-                    timer = 0;
-                }
-            }
         }
 
         [ContextMenu("Refresh voxel map")]
@@ -74,6 +59,9 @@ namespace Procedural.Marching.Squares
         {
             VoxelChunk chunk = Instantiate(chunkPrefab);
             chunk.SetNoiseGenerator(noiseGenerator);
+            chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
+            chunk.SetVoxelScale(voxelScale);
+
             chunk.transform.parent = transform;
             chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
             chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
@@ -93,7 +81,6 @@ namespace Procedural.Marching.Squares
 
         private void Initialize()
         {
-            halfSize = mapResolution * 0.5f;
             chunkSize = mapResolution / chunkResolution;
             voxelSize = chunkSize / voxelResolution;
 

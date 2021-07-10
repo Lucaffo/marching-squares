@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Procedural.Marching.Squares
 {
@@ -15,7 +16,14 @@ namespace Procedural.Marching.Squares
         public Color isUsedColor;
         public Color isNotUsedColor;
         private Color currentPointColor;
-        
+
+        private MeshRenderer meshRenderer;
+
+        private void Awake()
+        {
+           meshRenderer = GetComponent<MeshRenderer>();
+        }
+
         public void Initialize(float x, float y, float size)
         {
             // Calculate its mainly 2 edge positions
@@ -28,6 +36,7 @@ namespace Procedural.Marching.Squares
             yEdgePosition.y += size * 0.5f;
             
             this.size = size;
+            this.transform.position += Vector3.forward * 10f;
         }
 
         public void SetUsedByMarching(bool isUsed)
@@ -39,6 +48,21 @@ namespace Procedural.Marching.Squares
         public void UpdateVoxelColor()
         {
             currentPointColor = isUsedByMarching ? isUsedColor : isNotUsedColor;
+        }
+
+        public void ShowVoxel(bool showVoxelPointGrid)
+        {
+            // Mesh renderer is getted from awake
+            if(meshRenderer)
+            {
+                meshRenderer.enabled = showVoxelPointGrid;
+
+                // Eventually update the color 
+                UpdateVoxelColor();
+
+                // Apply the color to the material
+                meshRenderer.material.color = currentPointColor;
+            }
         }
 
         private void OnDrawGizmos()

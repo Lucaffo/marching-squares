@@ -1,4 +1,5 @@
 using NoiseGenerator;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -11,17 +12,15 @@ namespace Procedural.Marching.Squares
     {
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
-        [Range(0f, 1f)] public float voxelScale = 0.1f;
 
         private bool useInterpolation;
 
         private int chunkResolution;
-        private Vector3 chunkOffset;
 
         private VoxelSquare[] voxels;
-        private float voxelSize, chunkSize;
-        private float halfSize;
-        
+        private float voxelSize;
+        private float voxelScale;
+
         // The entire chunk mesh
         private Mesh chunkMesh;
         private MeshFilter chunkMeshFilter;
@@ -33,20 +32,15 @@ namespace Procedural.Marching.Squares
         private List<int> triangles;
         
         private Noise noiseGenerator;
-        
+        private bool showVoxelPointGrid;
+
         public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
         {
             this.useInterpolation = useInterpolation;
             this.chunkResolution = chunkRes;
-            this.chunkSize = chunkSize;
             
-            chunkOffset = new Vector3(transform.localPosition.x * chunkResolution, transform.localPosition.y * chunkResolution);
-
             // Greater the resolution, less is the size of the voxel
             voxelSize = chunkSize / chunkResolution;
-
-            // Used to center the voxel into grid
-            halfSize = chunkSize * 0.5f;
 
             // Create the array of voxels
             voxels = new VoxelSquare[chunkResolution * chunkResolution];
@@ -77,6 +71,11 @@ namespace Procedural.Marching.Squares
             Refresh();
         }
 
+        internal void SetVoxelScale(float voxelScale)
+        {
+            this.voxelScale = voxelScale;
+        }
+
         private void CreateVoxel(int voxelIndex, float x, float y)
         {
             VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
@@ -85,8 +84,13 @@ namespace Procedural.Marching.Squares
             voxelSquare.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
             voxelSquare.Initialize(x, y, voxelSize);
 
+            // Important part
             voxelSquare.value = noiseGenerator.Generate(x, y);
             voxelSquare.SetUsedByMarching(voxelSquare.value > noiseGenerator.isoLevel);
+
+            // Debug option
+            voxelSquare.ShowVoxel(showVoxelPointGrid);
+
             voxels[voxelIndex] = voxelSquare;
         }
 
@@ -103,7 +107,6 @@ namespace Procedural.Marching.Squares
             Mesh colliderMesh = new Mesh();
             
             colliderMesh.indexFormat = IndexFormat.UInt32;
-
             colliderMesh.vertices = vertices.ToArray();
             colliderMesh.triangles = triangles.ToArray();
             
@@ -113,6 +116,10 @@ namespace Procedural.Marching.Squares
         public void SetNoiseGenerator(Noise noiseGenerator)
         {
             this.noiseGenerator = noiseGenerator;
+        }
+        public void SetShowVoxelPointGrid(bool showVoxelPointGrid)
+        {
+            this.showVoxelPointGrid = showVoxelPointGrid;
         }
 
         public void TriangulateVoxels()
