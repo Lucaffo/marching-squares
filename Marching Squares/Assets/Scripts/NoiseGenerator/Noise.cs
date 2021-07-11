@@ -5,6 +5,8 @@ namespace NoiseGenerator
     public abstract class Noise : ScriptableObject
     {
         [Range(0, 1)] public float isoLevel;
+        public Vector3 offset;
+        public Vector3 frequence;
 
         public abstract float Generate(float x, float y);
         public abstract float Generate(float x, float y, float z);

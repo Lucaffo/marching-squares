@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b165e630939158b47ac6f08caed4e47c, type: 3}
-  m_Name: PerlinAsteroidsGeneration
+  m_Name: CurrentNoise
   m_EditorClassIdentifier: 
   isoLevel: 0.67
   offset: {x: 53.217564, y: 52.21756, z: 0}
