@@ -17,7 +17,6 @@ namespace Procedural.Marching.Squares.UI
         public Slider scrollSpeedSlider;
         public Toggle scrollWithTimeToggle;
         public Toggle useInterpolationToggle;
-        public Toggle showPointGridToggle;
 
         public Text gridResolutionText;
         public Text scrollSpeedText;
@@ -30,6 +29,9 @@ namespace Procedural.Marching.Squares.UI
         public Text isoLevelText;
         public Text frequenceXText;
         public Text frequenceYText;
+
+        [Header("Presets & Debug Settings")]
+        public Toggle showPointGridToggle;
 
         private void Start()
         {
