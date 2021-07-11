@@ -31,7 +31,10 @@ namespace Procedural.Marching.Squares.UI
         public Text frequenceYText;
 
         [Header("Presets & Debug Settings")]
+        public Slider pointGridScaleSlider;
         public Toggle showPointGridToggle;
+
+        public Text pointGridScaleText;
 
         private void Start()
         {
@@ -48,7 +51,6 @@ namespace Procedural.Marching.Squares.UI
             #region Setup Map Settings UI values
             voxelResolutionSlider.value = map.voxelResolution;
             useInterpolationToggle.isOn = map.useInterpolation;
-            showPointGridToggle.isOn = map.showVoxelPointGrid;
             scrollSpeedSlider.value = noiseOffsetMover.scrollSpeed;
             scrollWithTimeToggle.isOn = noiseOffsetMover.timeScroll;
             #endregion
@@ -58,6 +60,14 @@ namespace Procedural.Marching.Squares.UI
             isoLevelSlider.value = map.noiseGenerator.isoLevel;
             frequenceXSlider.value = map.noiseGenerator.frequence.x;
             frequenceYSlider.value = map.noiseGenerator.frequence.y;
+
+            #endregion
+
+
+            #region Setup Preset & Debug Settings UI values
+
+            showPointGridToggle.isOn = map.showVoxelPointGrid;
+            pointGridScaleSlider.value = map.voxelScale;
 
             #endregion
         }
@@ -77,7 +87,6 @@ namespace Procedural.Marching.Squares.UI
             // Apply the toggle values
             map.useInterpolation = useInterpolationToggle.isOn;
             noiseOffsetMover.timeScroll = scrollWithTimeToggle.isOn;
-            map.showVoxelPointGrid = showPointGridToggle.isOn;
 
             #endregion
 
@@ -92,6 +101,19 @@ namespace Procedural.Marching.Squares.UI
             map.noiseGenerator.isoLevel = isoLevelSlider.value;
             map.noiseGenerator.frequence.x = frequenceXSlider.value;
             map.noiseGenerator.frequence.y = frequenceYSlider.value;
+
+            #endregion
+
+            #region Update Noise Settings - Graphics Components
+
+            // Update the value texts
+            pointGridScaleText.text = map.voxelScale.ToString();
+
+            // Update the slider values
+            map.voxelScale = pointGridScaleSlider.value;
+
+            // Apply the toggle values
+            map.showVoxelPointGrid = showPointGridToggle.isOn;
 
             #endregion
         }
