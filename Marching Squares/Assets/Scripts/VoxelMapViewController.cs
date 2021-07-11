@@ -1,3 +1,4 @@
+using NoiseGenerator;
 using Procedural.Marching.Squares.Utils;
 
 using UnityEngine;
@@ -32,6 +33,16 @@ namespace Procedural.Marching.Squares.UI
 
         private void Start()
         {
+            SetupView();
+        }
+
+        private void Update()
+        {
+            UpdateView();
+        }
+
+        private void SetupView()
+        {
             #region Setup Map Settings UI values
             voxelResolutionSlider.value = map.voxelResolution;
             useInterpolationToggle.isOn = map.useInterpolation;
@@ -47,11 +58,6 @@ namespace Procedural.Marching.Squares.UI
             frequenceYSlider.value = map.noiseGenerator.frequence.y;
 
             #endregion
-        }
-
-        private void Update()
-        {
-            UpdateView();
         }
 
         private void UpdateView()
@@ -85,9 +91,19 @@ namespace Procedural.Marching.Squares.UI
             map.noiseGenerator.frequence.x = frequenceXSlider.value;
             map.noiseGenerator.frequence.y = frequenceYSlider.value;
 
-            // Apply the toggle values
-
             #endregion
+        }
+
+        public void SetPresetToMap(Noise presetNoise)
+        {
+            map.noiseGenerator.isoLevel = presetNoise.isoLevel;
+            map.noiseGenerator.frequence = presetNoise.frequence;
+            map.noiseGenerator.offset = presetNoise.offset;
+
+            SetupView();
+
+            // Refresh the map
+            map.Refresh();
         }
     }
 }

@@ -44,6 +44,10 @@ namespace Procedural.Marching.Squares.Utils
             {
                 map.AddNoiseOffset(inputDirection * scrollSpeed + timeDirection * scrollSpeed);
             }
+            else
+            {
+                map.Refresh();
+            }
         }
     }
 }
