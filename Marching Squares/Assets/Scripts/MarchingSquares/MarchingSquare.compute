@@ -1,0 +1,170 @@
+#pragma kernel March
+
+static const int numThreads = 8;
+
+struct Triangle {
+    float3 vertexC;
+    float3 vertexB;
+    float3 vertexA;
+};
+
+AppendStructuredBuffer<Triangle> triangles;
+RWStructuredBuffer<float4> points;
+
+int cells;
+float isoLevel;
+bool useInterpolation;
+
+float4 lerp(float4 a, float4 b, float w)
+{
+  return a + w*(b-a);
+}
+
+int indexFromCoord(int x, int y) {
+    return y * cells + x;
+}
+
+void AddTriangle(float4 a, float4 b, float4 c)
+{
+    Triangle tri;
+    tri.vertexA = a;
+    tri.vertexB = b;
+    tri.vertexC = c;
+
+    triangles.Append(tri);
+}
+
+void AddQuad(float4 a, float4 b, float4 c, float4 d)
+{
+    AddTriangle(a, b, c);
+    AddTriangle(a, c, d);
+}
+
+void AddPentagon(float4 a, float4 b, float4 c, float4 d, float4 e)
+{
+    AddTriangle(a, b, c);
+    AddTriangle(a, c, d);
+    AddTriangle(a, d, e);
+}
+
+[numthreads(numThreads,numThreads,1)]
+void March (int3 id : SV_DispatchThreadID)
+{   
+    // Stop one point before the end because voxel includes neighbouring points
+    if (id.x >= cells-1 || id.y >= cells-1 || id.z >= cells-1) {
+        return;
+    }
+
+    // Points of the square
+    float4 squareCorners[4] = {
+        points[indexFromCoord(id.x, id.y)],
+        points[indexFromCoord(id.x + 1, id.y)],
+        points[indexFromCoord(id.x, id.y + 1)],
+        points[indexFromCoord(id.x + 1, id.y + 1)]
+    };
+
+    // Cell corners
+    float4 a = squareCorners[0];
+    float4 b = squareCorners[1];
+    float4 c = squareCorners[2];
+    float4 d = squareCorners[3];
+
+    // Calculate unique index for each cube configuration.
+    // There are 16 possible values
+    int cellType = 0; 
+    if (a.w < isoLevel) cellType |= 1;
+    if (b.w < isoLevel) cellType |= 2;
+    if (c.w < isoLevel) cellType |= 4;
+    if (d.w < isoLevel) cellType |= 8;
+
+    // Instead of top you lerp between A and B to get the position.
+    // Instead of right you lerp between B and C, etc.
+    // 
+    //          top
+    //       C-------D
+    //  left |       |  right
+    //       |       |
+    //       A-------B
+    //         bottom
+
+
+    // Interpolation part
+    float t_top;
+    float t_right;
+    float t_bottom;
+    float t_left;
+
+    if(useInterpolation)
+    {
+        t_top = (isoLevel - c.w) / (d.w - c.w);
+        t_right = (isoLevel - d.w) / (b.w - d.w);
+        t_bottom = (isoLevel - b.w) / (a.w - b.w);
+        t_left = (isoLevel - a.w) / (c.w - a.w);
+    }
+    else
+    {
+        // Interpolation is for edge vertex
+        t_top = 0.5;
+        t_right = 0.5;
+        t_bottom = 0.5;
+        t_left = 0.5;
+    }
+
+    float4 top = lerp(c, d, t_top); 
+    float4 right = lerp(d, b, t_right);
+    float4 bottom = lerp(b, a, t_bottom);
+    float4 left = lerp(a, c, t_left);
+
+    switch(cellType)
+    {
+        case 0:
+            return;
+        case 1:
+            AddTriangle(a, left, bottom);
+            break;
+        case 2:
+            AddTriangle(b, bottom, right);
+            break;
+        case 4:
+            AddTriangle(c, top, left);
+            break;
+        case 8:
+            AddTriangle(d, right, top);
+            break;
+        case 3:
+            AddQuad(a, left, right, b);
+            break;
+        case 5:
+            AddQuad(a, c, top, bottom);
+            break;
+        case 10:
+            AddQuad(bottom, top, d, b);
+            break;
+        case 12:
+            AddQuad(left, c, d, right);
+            break;
+        case 15:
+            AddQuad(a, c, d, b);
+            break;
+        case 7:
+            AddPentagon(a, c, top, right, b);
+            break;
+        case 11:
+            AddPentagon(b, a, left, top, d);
+            break;
+        case 13:
+            AddPentagon(c, d, right, bottom, a);
+            break;
+        case 14:
+            AddPentagon(d, b, bottom, left, c);
+            break;
+        case 6:
+            AddTriangle(b, bottom, right);
+            AddTriangle(c, top, left);
+            break;
+        case 9:
+            AddTriangle(a, left, bottom);
+            AddTriangle(d, right, top);
+            break;
+    }
+}
