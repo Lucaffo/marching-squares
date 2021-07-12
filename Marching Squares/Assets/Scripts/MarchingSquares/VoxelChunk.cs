@@ -33,23 +33,13 @@ namespace Procedural.Marching.Squares
 
         private void Awake()
         {
-            // Get the chunk mesh fitler
-            /*if (chunkMeshFilter == null)
-                chunkMeshFilter = GetComponent<MeshFilter>();
-            */
-
             // Setup the mesh on filter
             if (mesh == null)
             {
                 mesh = new Mesh();
                 mesh.indexFormat = IndexFormat.UInt32;
                 mesh.name = "VoxelGrid Mesh";
-                // chunkMeshFilter.sharedMesh = mesh;
             }
-
-            // Get the chunk mesh renderer
-            /* if (chunkMeshRenderer == null)
-                chunkMeshRenderer = GetComponent<MeshRenderer>();*/
 
             // Initialize vertices and triangles lists
             vertices = new List<Vector3>();
@@ -59,22 +49,6 @@ namespace Procedural.Marching.Squares
 
         private void OnDestroy()
         {
-            // If an istance of a material is created,
-            // you're responsible to destroy it,
-            // altrought it remain in memory causing HUGE memory leaks.
-            // Destroy(chunkMeshRenderer.material);
-
-            // If a mesh is created manually,
-            // you're responsible to destroy it,
-            // altrought it remain in memory causing HUGE memory leaks.
-            // Destroy(chunkMeshFilter.mesh);
-
-            // This little shit make me lose 20 minutes of my life for line 127
-            // Destroy(chunkMeshCollider.sharedMesh);
-
-            // Clearn the chunk mesh and destroy it
-            // chunkMeshFilter.sharedMesh.Clear();
-            // Destroy(chunkMeshFilter.sharedMesh);
             mesh.Clear();
             Destroy(mesh);
         }
@@ -150,15 +124,6 @@ namespace Procedural.Marching.Squares
             }
 
             TriangulateVoxels();
-
-            // Apply mesh to mesh collider
-            /* Mesh colliderMesh = new Mesh();
-            
-            colliderMesh.indexFormat = IndexFormat.UInt32;
-            colliderMesh.vertices = vertices.ToArray();
-            colliderMesh.triangles = triangles.ToArray();
-            
-            chunkMeshCollider.sharedMesh = colliderMesh;*/
         }
 
         public void SetNoiseGenerator(Noise noiseGenerator)
