@@ -8,7 +8,7 @@ namespace Procedural.Marching.Squares
         [Header("Voxel square settings")]
         public float value;
         public bool isUsedByMarching;
-        public Vector2 position, xEdgePosition, yEdgePosition;
+        public Vector2 position;
 
         [Header("Points mesh materials")]
         public Mesh squareMesh;
@@ -20,11 +20,6 @@ namespace Procedural.Marching.Squares
             // Calculate its mainly 2 edge positions
             position.x = (x) * size;
             position.y = (y) * size;
-
-            xEdgePosition = position;
-            xEdgePosition.x += size * 0.5f;
-            yEdgePosition = position;
-            yEdgePosition.y += size * 0.5f;
 
             this.transform.position += Vector3.forward * 10f;
         }

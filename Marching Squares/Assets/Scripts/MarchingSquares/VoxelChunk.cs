@@ -189,7 +189,7 @@ namespace Procedural.Marching.Squares
             {
                 cellType |= 8;
             }
-            
+
             // Instead of top you lerp between A and B to get the position.
             // Instead of right you lerp between B and C, etc.
             // 
@@ -200,16 +200,31 @@ namespace Procedural.Marching.Squares
             //       A-------B
             //         bottom
 
-            float t_top = (noiseGenerator.isoLevel - c.value) / (d.value - c.value);
+            // Intepolations t values
+            float t_top;
+            float t_right;
+            float t_bottom;
+            float t_left;
+
+            if (useInterpolation)
+            {
+                t_top = (noiseGenerator.isoLevel - c.value) / (d.value - c.value);
+                t_right = (noiseGenerator.isoLevel - d.value) / (b.value - d.value);
+                t_bottom = (noiseGenerator.isoLevel - b.value) / (a.value - b.value);
+                t_left = (noiseGenerator.isoLevel - a.value) / (c.value - a.value);
+            }
+            else
+            {
+                // No, interpolation. By default are mid edge vertex.
+                t_top = 0.5f;
+                t_right = 0.5f;
+                t_bottom = 0.5f;
+                t_left = 0.5f;
+            }
+
             Vector2 top = Vector2.Lerp(c.position, d.position, t_top);
-
-            float t_right = (noiseGenerator.isoLevel - d.value) / (b.value - d.value);
             Vector2 right = Vector2.Lerp(d.position, b.position, t_right);
-
-            float t_bottom = (noiseGenerator.isoLevel - b.value) / (a.value - b.value);
             Vector2 bottom = Vector2.Lerp(b.position, a.position, t_bottom);
-
-            float t_left = (noiseGenerator.isoLevel - a.value) / (c.value - a.value);
             Vector2 left = Vector2.Lerp(a.position, c.position, t_left);
             
             switch (cellType)
@@ -217,128 +232,51 @@ namespace Procedural.Marching.Squares
                 case 0:
                     return;
                 case 1:
-                    if(useInterpolation)
-                    {
-                        AddTriangle(a.position, left, bottom);
-                        break;
-                    }
-                    AddTriangle(a.position, a.yEdgePosition, a.xEdgePosition);
+                    AddTriangle(a.position, left, bottom);
                     break;
                 case 2:
-                    if (useInterpolation)
-                    {
-                        AddTriangle(b.position, bottom, right);
-                        break;
-                    }
-                    AddTriangle(b.position, a.xEdgePosition, b.yEdgePosition);
+                    AddTriangle(b.position, bottom, right);
                     break;
                 case 4:
-                    if (useInterpolation)
-                    {
-                        AddTriangle(c.position, top, left);
-                        break;
-                    }
-                    AddTriangle(c.position, c.xEdgePosition, a.yEdgePosition);
+                    AddTriangle(c.position, top, left);
                     break;
                 case 8:
-                    if (useInterpolation)
-                    {
-                        AddTriangle(d.position, right, top);
-                        break;
-                    }
-                    AddTriangle(d.position, b.yEdgePosition, c.xEdgePosition);
+                    AddTriangle(d.position, right, top);
                     break;
                 case 3:
-                    if (useInterpolation)
-                    {
-                        AddQuad(a.position, left, right, b.position);
-                        break;
-                    }
-                    AddQuad(a.position, a.yEdgePosition, b.yEdgePosition, b.position);
+                    AddQuad(a.position, left, right, b.position);
                     break;
                 case 5:
-                    if (useInterpolation)
-                    {
-                        AddQuad(a.position, c.position, top, bottom);
-                        break;
-                    }
-                    AddQuad(a.position, c.position, c.xEdgePosition, a.xEdgePosition);
+                    AddQuad(a.position, c.position, top, bottom); 
                     break;
                 case 10:
-                    if (useInterpolation)
-                    {
-                        AddQuad(bottom, top, d.position, b.position);
-                        break;
-                    }
-                    AddQuad(a.xEdgePosition, c.xEdgePosition, d.position, b.position);
+                    AddQuad(bottom, top, d.position, b.position);
                     break;
                 case 12:
-                    if (useInterpolation)
-                    {
-                        AddQuad(left, c.position, d.position, right);
-                        break;
-                    }
-                    AddQuad(a.yEdgePosition, c.position, d.position, b.yEdgePosition);
+                    AddQuad(left, c.position, d.position, right);
                     break;
                 case 15:
-                    if (useInterpolation)
-                    {
-                        AddQuad(a.position, c.position, d.position, b.position);
-                        break;
-                    }
                     AddQuad(a.position, c.position, d.position, b.position);
                     break;
                 case 7:
-                    if (useInterpolation)
-                    {
-                        AddPentagon(a.position, c.position, top, right, b.position);
-                        break;
-                    }
-                    AddPentagon(a.position, c.position, c.xEdgePosition, b.yEdgePosition, b.position);
+                    AddPentagon(a.position, c.position, top, right, b.position);
                     break;
                 case 11:
-                    if (useInterpolation)
-                    {
-                        AddPentagon(b.position, a.position, left, top, d.position);
-                        break;
-                    }
-                    AddPentagon(b.position, a.position, a.yEdgePosition, c.xEdgePosition, d.position);
+                    AddPentagon(b.position, a.position, left, top, d.position);
                     break;
                 case 13:
-                    if (useInterpolation)
-                    {
-                        AddPentagon(c.position, d.position, right, bottom, a.position);
-                        break;
-                    }
-                    AddPentagon(c.position, d.position, b.yEdgePosition, a.xEdgePosition, a.position);
+                    AddPentagon(c.position, d.position, right, bottom, a.position);
                     break;
                 case 14:
-                    if (useInterpolation)
-                    {
-                        AddPentagon(d.position, b.position, bottom, left, c.position);
-                        break;
-                    }
-                    AddPentagon(d.position, b.position, a.xEdgePosition, a.yEdgePosition, c.position);
+                    AddPentagon(d.position, b.position, bottom, left, c.position);
                     break;
                 case 6:
-                    if (useInterpolation)
-                    {
-                        AddTriangle(b.position, bottom, right);
-                        AddTriangle(c.position, top, left);
-                        break;
-                    }
-                    AddTriangle(b.position, a.xEdgePosition, b.yEdgePosition);
-                    AddTriangle(c.position, c.xEdgePosition, a.yEdgePosition);
+                    AddTriangle(b.position, bottom, right);
+                    AddTriangle(c.position, top, left);
                     break;
                 case 9:
-                    if (useInterpolation)
-                    {
-                        AddTriangle(a.position, left, bottom);
-                        AddTriangle(d.position, right, top);
-                        break;
-                    }
-                    AddTriangle(a.position, a.yEdgePosition, a.xEdgePosition);
-                    AddTriangle(d.position, b.yEdgePosition, c.xEdgePosition);
+                    AddTriangle(a.position, left, bottom);
+                    AddTriangle(d.position, right, top);
                     break;
             }
         }
