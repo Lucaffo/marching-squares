@@ -38,7 +38,6 @@ namespace Procedural.Marching.Squares
             // Refresh all the chunks
             foreach(VoxelChunk chunk in chunks)
             {
-                chunk.SetNoiseGenerator(noiseGenerator);
                 chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
                 chunk.SetVoxelScale(voxelScale);
                 chunk.Initialize(voxelResolution, chunkSize, useInterpolation);

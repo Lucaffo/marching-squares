@@ -141,7 +141,6 @@ namespace Procedural.Marching.Squares
         {
             foreach(VoxelSquare voxel in voxels)
             {
-                voxel.UpdateVoxelColor();
                 voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
                 voxel.value = noiseGenerator.Generate(voxel.position.x, voxel.position.y);
                 voxel.SetUsedByMarching(voxel.value > noiseGenerator.isoLevel);

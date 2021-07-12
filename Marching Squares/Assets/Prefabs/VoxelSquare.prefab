@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5149892048347884319}
   - component: {fileID: 420039295479511553}
-  - component: {fileID: 2734677182191934062}
-  - component: {fileID: 4555320809597660473}
   m_Layer: 0
   m_Name: VoxelSquare
   m_TagString: Untagged
@@ -50,55 +48,6 @@ MonoBehaviour:
   position: {x: 0, y: 0}
   xEdgePosition: {x: 0, y: 0}
   yEdgePosition: {x: 0, y: 0}
-  drawGizmos: 1
-  isUsedColor: {r: 0, g: 0, b: 0, a: 1}
-  isNotUsedColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!33 &2734677182191934062
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5149892048347884318}
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &4555320809597660473
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5149892048347884318}
-  m_Enabled: 0
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 0
-  m_MotionVectors: 0
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
+  squareMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  usedMaterial: {fileID: 10756, guid: 0000000000000000e000000000000000, type: 0}
+  notUsedMaterial: {fileID: 2100000, guid: 8c950cd8d0cf310449375e358ee30b68, type: 2}
