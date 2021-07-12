@@ -11,6 +11,7 @@ namespace Procedural.Marching.Squares
     {
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
+        public Material voxelMaterial;
 
         private bool useInterpolation;
 
@@ -20,9 +21,7 @@ namespace Procedural.Marching.Squares
         private float voxelSize;
         private float voxelScale;
 
-        // The entire chunk mesh
-        private MeshFilter chunkMeshFilter;
-        private MeshRenderer chunkMeshRenderer;
+        private Mesh mesh;
 
         // Vertices and triangles of all the voxels square in chunk
         private List<Vector3> vertices;
@@ -35,21 +34,22 @@ namespace Procedural.Marching.Squares
         private void Awake()
         {
             // Get the chunk mesh fitler
-            if (chunkMeshFilter == null)
+            /*if (chunkMeshFilter == null)
                 chunkMeshFilter = GetComponent<MeshFilter>();
+            */
 
             // Setup the mesh on filter
-            if (chunkMeshFilter.sharedMesh == null)
+            if (mesh == null)
             {
-                Mesh mesh = new Mesh();
+                mesh = new Mesh();
                 mesh.indexFormat = IndexFormat.UInt32;
                 mesh.name = "VoxelGrid Mesh";
-                chunkMeshFilter.sharedMesh = mesh;
+                // chunkMeshFilter.sharedMesh = mesh;
             }
 
             // Get the chunk mesh renderer
-            if (chunkMeshRenderer == null)
-                chunkMeshRenderer = GetComponent<MeshRenderer>();
+            /* if (chunkMeshRenderer == null)
+                chunkMeshRenderer = GetComponent<MeshRenderer>();*/
 
             // Initialize vertices and triangles lists
             vertices = new List<Vector3>();
@@ -62,19 +62,21 @@ namespace Procedural.Marching.Squares
             // If an istance of a material is created,
             // you're responsible to destroy it,
             // altrought it remain in memory causing HUGE memory leaks.
-            Destroy(chunkMeshRenderer.material);
+            // Destroy(chunkMeshRenderer.material);
 
             // If a mesh is created manually,
             // you're responsible to destroy it,
             // altrought it remain in memory causing HUGE memory leaks.
-            Destroy(chunkMeshFilter.mesh);
+            // Destroy(chunkMeshFilter.mesh);
 
             // This little shit make me lose 20 minutes of my life for line 127
             // Destroy(chunkMeshCollider.sharedMesh);
 
             // Clearn the chunk mesh and destroy it
-            chunkMeshFilter.sharedMesh.Clear();
-            Destroy(chunkMeshFilter.sharedMesh);
+            // chunkMeshFilter.sharedMesh.Clear();
+            // Destroy(chunkMeshFilter.sharedMesh);
+            mesh.Clear();
+            Destroy(mesh);
         }
 
         public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
@@ -174,7 +176,7 @@ namespace Procedural.Marching.Squares
             vertices.Clear();
             uvs.Clear();
             triangles.Clear();
-            chunkMeshFilter.sharedMesh.Clear();
+            mesh.Clear();
             
             int cells = chunkResolution - 1;
             int voxelIndex = 0;
@@ -191,9 +193,12 @@ namespace Procedural.Marching.Squares
                 }
             }
 
-            chunkMeshFilter.sharedMesh.SetVertices(vertices);
-            chunkMeshFilter.sharedMesh.SetUVs(0, uvs);
-            chunkMeshFilter.sharedMesh.SetTriangles(triangles, 0);
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
+
+            // Draw the mesh GPU
+            Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
         }
 
         #region Triangulation functions
