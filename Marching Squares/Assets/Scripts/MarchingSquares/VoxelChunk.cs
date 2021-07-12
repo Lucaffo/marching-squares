@@ -23,7 +23,7 @@ namespace Procedural.Marching.Squares
         // The entire chunk mesh
         private Mesh chunkMesh;
         private MeshFilter chunkMeshFilter;
-        private MeshCollider chunkMeshCollider;
+        // private MeshCollider chunkMeshCollider;
         private MeshRenderer chunkMeshRenderer;
 
         // Vertices and triangles of all the voxels square in chunk
@@ -37,30 +37,41 @@ namespace Procedural.Marching.Squares
         public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
         {
             this.useInterpolation = useInterpolation;
-            this.chunkResolution = chunkRes;
-            
-            // Greater the resolution, less is the size of the voxel
-            voxelSize = chunkSize / chunkResolution;
 
-            // Create the array of voxels
-            voxels = new VoxelSquare[chunkResolution * chunkResolution];
-
-            int voxelIndex = 0;
-
-            for (int y = 0; y < chunkResolution; y++)
+            if(chunkRes != this.chunkResolution)
             {
-                for (int x = 0; x < chunkResolution; x++)
+                this.chunkResolution = chunkRes;
+                
+                if(voxels != null)
                 {
-                    CreateVoxel(voxelIndex, x, y);
-                    voxelIndex++;
+                    for (int i = 0; i < voxels.Length; i++)
+                    {
+                        Destroy(voxels[i]);
+                    }
+                }
+
+                // Create the array of voxels
+                voxels = new VoxelSquare[chunkResolution * chunkResolution];
+
+                // Greater the resolution, less is the size of the voxel
+                voxelSize = chunkSize / chunkResolution;
+
+                int voxelIndex = 0;
+
+                for (int y = 0; y < chunkResolution; y++)
+                {
+                    for (int x = 0; x < chunkResolution; x++)
+                    {
+                        CreateVoxel(voxelIndex, x, y);
+                        voxelIndex++;
+                    }
                 }
             }
-            
+
             // Get the chunk mesh component
             chunkMeshFilter = GetComponent<MeshFilter>();
-            chunkMeshCollider = GetComponent<MeshCollider>();
+            // chunkMeshCollider = GetComponent<MeshCollider>();
             chunkMeshRenderer = GetComponent<MeshRenderer>();
-            
             chunkMesh = chunkMeshFilter.mesh;
             chunkMesh.name = "VoxelGrid Mesh";
 
@@ -85,7 +96,7 @@ namespace Procedural.Marching.Squares
             Destroy(chunkMeshFilter.mesh);
 
             // This little shit make me lose 20 minutes of my life for line 127
-            Destroy(chunkMeshCollider.sharedMesh);
+            // Destroy(chunkMeshCollider.sharedMesh);
 
             // Clearn the chunk mesh and destroy it
             chunkMesh.Clear();
@@ -120,18 +131,22 @@ namespace Procedural.Marching.Squares
             foreach(VoxelSquare voxel in voxels)
             {
                 voxel.UpdateVoxelColor();
+                voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
+                voxel.value = noiseGenerator.Generate(voxel.position.x, voxel.position.y);
+                voxel.SetUsedByMarching(voxel.value > noiseGenerator.isoLevel);
+                voxel.ShowVoxel(showVoxelPointGrid);
             }
 
             TriangulateVoxels();
 
             // Apply mesh to mesh collider
-            Mesh colliderMesh = new Mesh();
+            /* Mesh colliderMesh = new Mesh();
             
             colliderMesh.indexFormat = IndexFormat.UInt32;
             colliderMesh.vertices = vertices.ToArray();
             colliderMesh.triangles = triangles.ToArray();
             
-            chunkMeshCollider.sharedMesh = colliderMesh;
+            chunkMeshCollider.sharedMesh = colliderMesh;*/
         }
 
         public void SetNoiseGenerator(Noise noiseGenerator)
