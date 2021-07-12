@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b165e630939158b47ac6f08caed4e47c, type: 3}
   m_Name: PerlinCaveGeneration
   m_EditorClassIdentifier: 
-  isoLevel: 0.5
+  isoLevel: 0.55
   offset: {x: 2, y: 2, z: 0}
-  frequence: {x: 4, y: 4, z: 0}
+  frequence: {x: 10, y: 10, z: 0}
   amplitude: 1

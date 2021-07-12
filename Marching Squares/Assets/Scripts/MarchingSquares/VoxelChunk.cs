@@ -21,9 +21,7 @@ namespace Procedural.Marching.Squares
         private float voxelScale;
 
         // The entire chunk mesh
-        private Mesh chunkMesh;
         private MeshFilter chunkMeshFilter;
-        // private MeshCollider chunkMeshCollider;
         private MeshRenderer chunkMeshRenderer;
 
         // Vertices and triangles of all the voxels square in chunk
@@ -33,6 +31,51 @@ namespace Procedural.Marching.Squares
         
         private Noise noiseGenerator;
         private bool showVoxelPointGrid;
+
+        private void Awake()
+        {
+            // Get the chunk mesh fitler
+            if (chunkMeshFilter == null)
+                chunkMeshFilter = GetComponent<MeshFilter>();
+
+            // Setup the mesh on filter
+            if (chunkMeshFilter.sharedMesh == null)
+            {
+                Mesh mesh = new Mesh();
+                mesh.indexFormat = IndexFormat.UInt32;
+                mesh.name = "VoxelGrid Mesh";
+                chunkMeshFilter.sharedMesh = mesh;
+            }
+
+            // Get the chunk mesh renderer
+            if (chunkMeshRenderer == null)
+                chunkMeshRenderer = GetComponent<MeshRenderer>();
+
+            // Initialize vertices and triangles lists
+            vertices = new List<Vector3>();
+            triangles = new List<int>();
+            uvs = new List<Vector2>();
+        }
+
+        private void OnDestroy()
+        {
+            // If an istance of a material is created,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(chunkMeshRenderer.material);
+
+            // If a mesh is created manually,
+            // you're responsible to destroy it,
+            // altrought it remain in memory causing HUGE memory leaks.
+            Destroy(chunkMeshFilter.mesh);
+
+            // This little shit make me lose 20 minutes of my life for line 127
+            // Destroy(chunkMeshCollider.sharedMesh);
+
+            // Clearn the chunk mesh and destroy it
+            chunkMeshFilter.sharedMesh.Clear();
+            Destroy(chunkMeshFilter.sharedMesh);
+        }
 
         public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
         {
@@ -68,39 +111,7 @@ namespace Procedural.Marching.Squares
                 }
             }
 
-            // Get the chunk mesh component
-            chunkMeshFilter = GetComponent<MeshFilter>();
-            // chunkMeshCollider = GetComponent<MeshCollider>();
-            chunkMeshRenderer = GetComponent<MeshRenderer>();
-            chunkMesh = chunkMeshFilter.mesh;
-            chunkMesh.name = "VoxelGrid Mesh";
-
-            // Initialize vertices and triangles lists
-            vertices = new List<Vector3>();
-            triangles = new List<int>();
-            uvs = new List<Vector2>();
-
             Refresh();
-        }
-
-        private void OnDestroy()
-        {
-            // If an istance of a material is created,
-            // you're responsible to destroy it,
-            // altrought it remain in memory causing HUGE memory leaks.
-            Destroy(chunkMeshRenderer.material);
-
-            // If a mesh is created manually,
-            // you're responsible to destroy it,
-            // altrought it remain in memory causing HUGE memory leaks.
-            Destroy(chunkMeshFilter.mesh);
-
-            // This little shit make me lose 20 minutes of my life for line 127
-            // Destroy(chunkMeshCollider.sharedMesh);
-
-            // Clearn the chunk mesh and destroy it
-            chunkMesh.Clear();
-            Destroy(chunkMesh);
         }
 
         internal void SetVoxelScale(float voxelScale)
@@ -164,7 +175,7 @@ namespace Procedural.Marching.Squares
             vertices.Clear();
             uvs.Clear();
             triangles.Clear();
-            chunkMesh.Clear();
+            chunkMeshFilter.sharedMesh.Clear();
             
             int cells = chunkResolution - 1;
             int voxelIndex = 0;
@@ -181,9 +192,9 @@ namespace Procedural.Marching.Squares
                 }
             }
 
-            chunkMesh.SetVertices(vertices);
-            chunkMesh.SetUVs(0, uvs);
-            chunkMesh.triangles = triangles.ToArray();
+            chunkMeshFilter.sharedMesh.SetVertices(vertices);
+            chunkMeshFilter.sharedMesh.SetUVs(0, uvs);
+            chunkMeshFilter.sharedMesh.SetTriangles(triangles, 0);
         }
 
         #region Triangulation functions

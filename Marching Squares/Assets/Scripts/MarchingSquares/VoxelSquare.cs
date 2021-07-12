@@ -57,7 +57,6 @@ namespace Procedural.Marching.Squares
         public void SetUsedByMarching(bool isUsed)
         {
             isUsedByMarching = isUsed;
-            UpdateVoxelColor();
         }
 
         public void UpdateVoxelColor()
@@ -72,11 +71,14 @@ namespace Procedural.Marching.Squares
             {
                 meshRenderer.enabled = showVoxelPointGrid;
 
-                // Eventually update the color 
-                UpdateVoxelColor();
+                if (showVoxelPointGrid)
+                {
+                    // Eventually update the color 
+                    UpdateVoxelColor();
 
-                // Apply the color to the material
-                meshRenderer.material.color = currentPointColor;
+                    // Apply the color to the material
+                    meshRenderer.material.color = currentPointColor;
+                }
             }
         }
 

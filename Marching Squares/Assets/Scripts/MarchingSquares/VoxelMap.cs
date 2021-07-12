@@ -35,24 +35,7 @@ namespace Procedural.Marching.Squares
         [ContextMenu("Refresh voxel map")]
         public void Refresh()
         {
-            /* for (int i = 0; i < transform.childCount; i++)
-            {
-                if(Application.isEditor)
-                {
-                    DestroyImmediate(transform.GetChild(i).gameObject);
-                }
-                else
-                {
-                    Destroy(transform.GetChild(i).gameObject);
-                }
-            }
-
-            if (chunks != null)
-            {
-                chunks.Clear();
-            }
-            */
-
+            // Refresh all the chunks
             foreach(VoxelChunk chunk in chunks)
             {
                 chunk.SetNoiseGenerator(noiseGenerator);
@@ -60,8 +43,6 @@ namespace Procedural.Marching.Squares
                 chunk.SetVoxelScale(voxelScale);
                 chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
             }
-
-            // Initialize();
         }
 
         public void CreateChunkAt(int x, int y)
