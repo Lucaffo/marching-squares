@@ -5113,11 +5113,11 @@ MonoBehaviour:
   noiseGenerator: {fileID: 11400000, guid: bc13bedaeb00c58478825d538d6ff8dd, type: 2}
   mapScale: 50
   useInterpolation: 0
-  chunkResolution: 2
+  chunkResolution: 1
   chunkPrefab: {fileID: 8477545550259858425, guid: eb27a3dc887ff9b4eb0636ae0e53e07d, type: 3}
-  voxelResolution: 25
+  voxelResolution: 50
   showVoxelPointGrid: 1
-  voxelScale: 0.05
+  voxelScale: 0.1
 --- !u!114 &1795261780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5482,7 +5482,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.2596, y: -158.46165}
+  m_AnchoredPosition: {x: -9.2592, y: -228.5952}
   m_SizeDelta: {x: 299.68, y: 876.7006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1896659587
@@ -6675,8 +6675,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 668974171}
   m_HandleRect: {fileID: 668974170}
   m_Direction: 2
-  m_Value: 0.8466234
-  m_Size: 0.47854725
+  m_Value: 1.0000005
+  m_Size: 0.47851062
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

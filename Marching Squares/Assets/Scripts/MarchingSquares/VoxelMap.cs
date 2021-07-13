@@ -26,7 +26,12 @@ namespace Procedural.Marching.Squares
         private List<VoxelChunk> chunks;
 
         private float chunkSize, voxelSize;
-        
+
+        private void OnApplicationQuit()
+        {
+            Destroy(gameObject);
+        }
+
         private void Awake()
         {
             Initialize();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b165e630939158b47ac6f08caed4e47c, type: 3}
   m_Name: CurrentNoise
   m_EditorClassIdentifier: 
-  isoLevel: 0.60074
-  offset: {x: 66.709694, y: 66.709694, z: 0}
-  frequence: {x: 4.072819, y: 4.327364, z: 0}
+  isoLevel: 0.45
+  offset: {x: 0.25669503, y: 0.25669503, z: 0}
+  frequence: {x: 10, y: 10, z: 0}
   amplitude: 1
