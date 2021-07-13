@@ -21,7 +21,7 @@ namespace Procedural.Marching.Squares
             position.x = (x) * size;
             position.y = (y) * size;
 
-            this.transform.position += Vector3.forward * 10f;
+            transform.position += Vector3.forward * 10f;
         }
 
         public void SetUsedByMarching(bool isUsed)

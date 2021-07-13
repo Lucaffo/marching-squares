@@ -21,6 +21,8 @@ namespace Procedural.Marching.Squares
         private float voxelSize;
         private float voxelScale;
 
+        public int x, y;
+
         private Mesh mesh;
 
         // Vertices and triangles of all the voxels square in chunk
@@ -65,7 +67,7 @@ namespace Procedural.Marching.Squares
                 {
                     for (int i = 0; i < voxels.Length; i++)
                     {
-                        Destroy(voxels[i]);
+                        Destroy(voxels[i].gameObject);
                     }
                 }
 
@@ -73,7 +75,7 @@ namespace Procedural.Marching.Squares
                 voxels = new VoxelSquare[chunkResolution * chunkResolution];
 
                 // Greater the resolution, less is the size of the voxel
-                voxelSize = chunkSize / chunkResolution;
+                this.voxelSize = chunkSize / chunkResolution;
 
                 int voxelIndex = 0;
 

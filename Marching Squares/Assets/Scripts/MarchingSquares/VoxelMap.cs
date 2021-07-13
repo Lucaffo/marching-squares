@@ -10,7 +10,7 @@ namespace Procedural.Marching.Squares
         public Noise noiseGenerator;
 
         [Header("Map settings")]
-        public int mapResolution = 2;
+        public int mapScale = 2;
         public bool useInterpolation = false;
 
         [Header("Chunk settings")]
@@ -35,12 +35,51 @@ namespace Procedural.Marching.Squares
         [ContextMenu("Refresh voxel map")]
         public void Refresh()
         {
+            float chunkSize = mapScale / chunkResolution;
+            float voxelSize = chunkSize / voxelResolution;
+
+            if (chunkSize != this.chunkSize)
+            {
+                foreach (VoxelChunk chunk in chunks)
+                {
+                    Destroy(chunk.gameObject);
+                }
+
+                Initialize();
+            }
+
             // Refresh all the chunks
-            foreach(VoxelChunk chunk in chunks)
+            foreach (VoxelChunk chunk in chunks)
             {
                 chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
                 chunk.SetVoxelScale(voxelScale);
                 chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
+
+                // First chunk case
+                if (chunk.x == 0 && chunk.y == 0)
+                {
+                    chunk.transform.localPosition = Vector3.zero;
+                    continue;
+                }
+
+                // Other chunk cases
+                if (chunk.x == chunk.y)
+                {
+                    // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
+                    chunk.transform.localPosition = Vector3.right * ((chunk.x * chunkSize) - voxelSize) + Vector3.up * ((chunk.y * chunkSize) - voxelSize);
+                    continue;
+                }
+
+                if (chunk.x > chunk.y)
+                {
+                    chunk.transform.localPosition = Vector3.right * ((chunk.x * chunkSize) - voxelSize) + Vector3.up * (chunk.y * chunkSize);
+                    continue;
+                }
+
+                if (chunk.x < chunk.y)
+                {
+                    chunk.transform.localPosition = Vector3.right * (chunk.x * chunkSize) + Vector3.up * ((chunk.y * chunkSize) - voxelSize);
+                }
             }
         }
 
@@ -50,11 +89,38 @@ namespace Procedural.Marching.Squares
             chunk.SetNoiseGenerator(noiseGenerator);
             chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
             chunk.SetVoxelScale(voxelScale);
-
             chunk.transform.parent = transform;
-            chunk.transform.localPosition = new Vector3(x * (chunkSize - voxelSize), y * (chunkSize - voxelSize));
+
+            chunk.x = x;
+            chunk.y = y;
+
             chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
             chunks.Add(chunk);
+
+            // First chunk case
+            if (x == 0 && y == 0)
+            {
+                return;
+            }
+
+            // Other chunk cases
+            if(x == y)
+            {
+                // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
+                chunk.transform.localPosition = Vector3.right * ((x * chunkSize) - voxelSize) + Vector3.up * ((y * chunkSize) - voxelSize);
+                return;
+            }
+            
+            if(x > y)
+            {
+                chunk.transform.localPosition = Vector3.right * ((x * chunkSize) - voxelSize) + Vector3.up * (y * chunkSize);
+                return;
+            }
+            
+            if(x < y)
+            {
+                chunk.transform.localPosition = Vector3.right * (x * chunkSize) + Vector3.up * ((y * chunkSize) - voxelSize);
+            }
         }
 
         public void AddNoiseOffset(Vector3 offset)
@@ -70,7 +136,7 @@ namespace Procedural.Marching.Squares
 
         private void Initialize()
         {
-            chunkSize = mapResolution / chunkResolution;
+            chunkSize = mapScale / chunkResolution;
             voxelSize = chunkSize / voxelResolution;
 
             chunks = new List<VoxelChunk>();
