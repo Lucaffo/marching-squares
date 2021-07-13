@@ -66,19 +66,19 @@ namespace Procedural.Marching.Squares
                 if (chunk.x == chunk.y)
                 {
                     // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                    chunk.transform.localPosition = Vector3.right * ((chunk.x * chunkSize) - voxelSize) + Vector3.up * ((chunk.y * chunkSize) - voxelSize);
+                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
                     continue;
                 }
 
                 if (chunk.x > chunk.y)
                 {
-                    chunk.transform.localPosition = Vector3.right * ((chunk.x * chunkSize) - voxelSize) + Vector3.up * (chunk.y * chunkSize);
+                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
                     continue;
                 }
 
                 if (chunk.x < chunk.y)
                 {
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * chunkSize) + Vector3.up * ((chunk.y * chunkSize) - voxelSize);
+                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
                 }
             }
         }
@@ -107,19 +107,19 @@ namespace Procedural.Marching.Squares
             if(x == y)
             {
                 // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                chunk.transform.localPosition = Vector3.right * ((x * chunkSize) - voxelSize) + Vector3.up * ((y * chunkSize) - voxelSize);
+                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
                 return;
             }
             
             if(x > y)
             {
-                chunk.transform.localPosition = Vector3.right * ((x * chunkSize) - voxelSize) + Vector3.up * (y * chunkSize);
+                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
                 return;
             }
             
             if(x < y)
             {
-                chunk.transform.localPosition = Vector3.right * (x * chunkSize) + Vector3.up * ((y * chunkSize) - voxelSize);
+                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
             }
         }
 

@@ -61,6 +61,8 @@ namespace Procedural.Marching.Squares
 
             if(chunkRes != this.chunkResolution)
             {
+                gameObject.name = "Chunk(" + x + "," + y + ")";
+
                 this.chunkResolution = chunkRes;
                 
                 if(voxels != null)
