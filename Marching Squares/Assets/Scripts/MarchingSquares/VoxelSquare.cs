@@ -12,7 +12,11 @@ namespace Procedural.Marching.Squares
 
         [Header("Points mesh materials")]
         public Mesh squareMesh;
-        public Material usedMaterial;
+
+        public Material maxIsoValueMaterial;
+        public Material midIsoValueMaterial;
+        public Material lowIsoValueMaterial;
+
         public Material notUsedMaterial;
 
         public void Initialize(float x, float y, float size)
@@ -21,7 +25,7 @@ namespace Procedural.Marching.Squares
             position.x = (x) * size;
             position.y = (y) * size;
 
-            transform.position += Vector3.forward * 10f;
+            transform.position -= Vector3.forward * 20f;
         }
 
         public void SetUsedByMarching(bool isUsed)
@@ -43,12 +47,31 @@ namespace Procedural.Marching.Squares
 
             if(isUsedByMarching)
             {
-                Graphics.DrawMesh(squareMesh, meshMatrix, usedMaterial, 0);
+                Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
+                return;
             }
-            else
+
+            /*if(value >= 0.9f)
             {
-                Graphics.DrawMesh(squareMesh, meshMatrix, notUsedMaterial, 0);
+                Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
+                return;
             }
+
+            // Color gradient features
+            if (value >= 0.5f)
+            {
+                Graphics.DrawMesh(squareMesh, meshMatrix, midIsoValueMaterial, 0);
+                return;
+            }
+
+            if (value >= 0.15f)
+            {
+                Graphics.DrawMesh(squareMesh, meshMatrix, lowIsoValueMaterial, 0);
+                return;
+            }*/ 
+
+            // Low value
+            Graphics.DrawMesh(squareMesh, meshMatrix, notUsedMaterial, 0);
         }
     }
 }
