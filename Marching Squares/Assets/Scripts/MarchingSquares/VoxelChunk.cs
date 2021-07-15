@@ -16,6 +16,7 @@ namespace Procedural.Marching.Squares
         private bool useInterpolation;
 
         private int chunkResolution;
+        private float chunkSize;
 
         private VoxelSquare[] voxels;
         private float voxelSize;
@@ -65,6 +66,7 @@ namespace Procedural.Marching.Squares
                 gameObject.name = "Chunk(" + x + "," + y + ")";
 
                 this.chunkResolution = chunkRes;
+                this.chunkSize = chunkSize;
                 
                 if(voxels != null)
                 {
@@ -123,7 +125,7 @@ namespace Procedural.Marching.Squares
             foreach(VoxelSquare voxel in voxels)
             {
                 voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
-                voxel.value = noiseGenerator.Generate(voxel.position.x, voxel.position.y);
+                voxel.value = noiseGenerator.Generate(voxel.position.x + transform.position.x, voxel.position.y + transform.position.y);
                 voxel.SetUsedByMarching(voxel.value > noiseGenerator.isoLevel);
                 voxel.ShowVoxel(showVoxelPointGrid);
             }
