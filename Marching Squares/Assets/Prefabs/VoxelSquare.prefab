@@ -48,6 +48,8 @@ MonoBehaviour:
   position: {x: 0, y: 0}
   squareMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   maxIsoValueMaterial: {fileID: 2100000, guid: 818841770fda968489461e6dbe0bb22f, type: 2}
+  midThreeshold: 0.6
   midIsoValueMaterial: {fileID: 2100000, guid: e3cda2a818ffe9b4a8ef439d6f750965, type: 2}
+  lowThreeshold: 0.3
   lowIsoValueMaterial: {fileID: 2100000, guid: d1a14c51bf1173c4296f508d0376c065, type: 2}
   notUsedMaterial: {fileID: 2100000, guid: 8c950cd8d0cf310449375e358ee30b68, type: 2}

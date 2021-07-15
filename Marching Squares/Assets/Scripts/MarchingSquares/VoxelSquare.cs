@@ -14,7 +14,11 @@ namespace Procedural.Marching.Squares
         public Mesh squareMesh;
 
         public Material maxIsoValueMaterial;
+
+        [Range(0, 1)] public float midThreeshold = 0.5f;
         public Material midIsoValueMaterial;
+
+        [Range(0, 1)] public float lowThreeshold = 0.2f;
         public Material lowIsoValueMaterial;
 
         public Material notUsedMaterial;
@@ -45,30 +49,30 @@ namespace Procedural.Marching.Squares
         {
             Matrix4x4 meshMatrix = transform.localToWorldMatrix;
 
+            /*if(isUsedByMarching)
+            {
+                Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
+                return;
+            }*/
+
             if(isUsedByMarching)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
                 return;
             }
 
-            /*if(value >= 0.9f)
-            {
-                Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
-                return;
-            }
-
             // Color gradient features
-            if (value >= 0.5f)
+            if (value >= midThreeshold)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, midIsoValueMaterial, 0);
                 return;
             }
 
-            if (value >= 0.15f)
+            if (value >= lowThreeshold)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, lowIsoValueMaterial, 0);
                 return;
-            }*/ 
+            } 
 
             // Low value
             Graphics.DrawMesh(squareMesh, meshMatrix, notUsedMaterial, 0);
