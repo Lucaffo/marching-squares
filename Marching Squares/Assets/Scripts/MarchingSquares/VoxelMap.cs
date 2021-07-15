@@ -12,6 +12,7 @@ namespace Procedural.Marching.Squares
         [Header("Map settings")]
         public int mapScale = 2;
         public bool useInterpolation = false;
+        public bool useMultithreading = false;
 
         [Header("Chunk settings")]
         public int chunkResolution = 2;
@@ -56,34 +57,38 @@ namespace Procedural.Marching.Squares
             // Refresh all the chunks
             foreach (VoxelChunk chunk in chunks)
             {
-                chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
-                chunk.SetVoxelScale(voxelScale);
-                chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
+                chunk.noiseGenerator = noiseGenerator;
+                chunk.showVoxelPointGrid = showVoxelPointGrid;
+                chunk.voxelScale = voxelScale;
+                chunk.useMultithreading = useMultithreading;
+                chunk.useInterpolation = useInterpolation;
+
+                chunk.Initialize(voxelResolution, chunkSize);
 
                 // First chunk case
-                if (chunk.x == 0 && chunk.y == 0)
+                if (chunk.chunkX == 0 && chunk.chunkY == 0)
                 {
                     chunk.transform.localPosition = Vector3.zero;
                     continue;
                 }
 
                 // Other chunk cases
-                if (chunk.x == chunk.y)
+                if (chunk.chunkX == chunk.chunkY)
                 {
                     // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                     continue;
                 }
 
-                if (chunk.x > chunk.y)
+                if (chunk.chunkX > chunk.chunkY)
                 {
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                     continue;
                 }
 
-                if (chunk.x < chunk.y)
+                if (chunk.chunkX < chunk.chunkY)
                 {
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                 }
             }
         }
@@ -91,41 +96,19 @@ namespace Procedural.Marching.Squares
         public void CreateChunkAt(int x, int y)
         {
             VoxelChunk chunk = Instantiate(chunkPrefab);
-            chunk.SetNoiseGenerator(noiseGenerator);
-            chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
-            chunk.SetVoxelScale(voxelScale);
+            chunk.noiseGenerator = noiseGenerator;
+            chunk.showVoxelPointGrid = showVoxelPointGrid;
+            chunk.voxelScale = voxelScale;
+            chunk.useMultithreading = useMultithreading;
+            chunk.useInterpolation = useInterpolation;
+
             chunk.transform.parent = transform;
 
-            chunk.x = x;
-            chunk.y = y;
+            chunk.chunkX = x;
+            chunk.chunkY = y;
 
-            chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
+            chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
-
-            // First chunk case
-            if (x == 0 && y == 0)
-            {
-                return;
-            }
-
-            // Other chunk cases
-            if(x == y)
-            {
-                // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-                return;
-            }
-            
-            if(x > y)
-            {
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-                return;
-            }
-            
-            if(x < y)
-            {
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-            }
         }
 
         public void AddNoiseOffset(Vector3 offset)

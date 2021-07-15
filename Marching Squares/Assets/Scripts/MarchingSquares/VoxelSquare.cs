@@ -1,14 +1,22 @@
 ﻿using System;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Procedural.Marching.Squares
 {
+    [Serializable, BurstCompatible]
+    public struct VoxelSquareData
+    {
+        public float value;
+        public bool isUsedByMarching;
+        public float3 position;
+    }
+
     public class VoxelSquare : MonoBehaviour
     {
         [Header("Voxel square settings")]
-        public float value;
-        public bool isUsedByMarching;
-        public Vector2 position;
+        public VoxelSquareData squareData;
 
         [Header("Points mesh materials")]
         public Mesh squareMesh;
@@ -23,18 +31,23 @@ namespace Procedural.Marching.Squares
 
         public Material notUsedMaterial;
 
+        private void Awake()
+        {
+            squareData = new VoxelSquareData();
+        }
+
         public void Initialize(float x, float y, float size)
         {
             // Calculate its mainly 2 edge positions
-            position.x = (x) * size;
-            position.y = (y) * size;
+            squareData.position.x = (x) * size;
+            squareData.position.y = (y) * size;
 
             transform.position -= Vector3.forward * 20f;
         }
 
         public void SetUsedByMarching(bool isUsed)
         {
-            isUsedByMarching = isUsed;
+            squareData.isUsedByMarching = isUsed;
         }
 
         public void ShowVoxel(bool showVoxelPointGrid)
@@ -55,20 +68,20 @@ namespace Procedural.Marching.Squares
                 return;
             }*/
 
-            if(isUsedByMarching)
+            if(squareData.isUsedByMarching)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
                 return;
             }
 
             // Color gradient features
-            if (value >= midThreeshold)
+            if (squareData.value >= midThreeshold)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, midIsoValueMaterial, 0);
                 return;
             }
 
-            if (value >= lowThreeshold)
+            if (squareData.value >= lowThreeshold)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, lowIsoValueMaterial, 0);
                 return;

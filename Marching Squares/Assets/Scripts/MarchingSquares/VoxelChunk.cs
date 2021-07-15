@@ -1,5 +1,9 @@
 using NoiseGenerator;
-using System.Collections.Generic;
+using System;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,27 +16,28 @@ namespace Procedural.Marching.Squares
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
         public Material voxelMaterial;
+        public Noise noiseGenerator;
 
-        private bool useInterpolation;
+        public float voxelSize;
+        public float voxelScale;
+        public bool showVoxelPointGrid;
+        public bool useInterpolation;
+        public bool useMultithreading;
+
+        public int chunkX, chunkY;
+
+        // Private attributes
+        private VoxelSquare[] voxels;
+        private NativeArray<VoxelSquareData> voxelsData;
+
+        private Mesh mesh;
 
         private int chunkResolution;
         private float chunkSize;
 
-        private VoxelSquare[] voxels;
-        private float voxelSize;
-        private float voxelScale;
-
-        public int x, y;
-
-        private Mesh mesh;
-
         // Vertices and triangles of all the voxels square in chunk
-        private List<Vector3> vertices;
-        private List<Vector2> uvs;
-        private List<int> triangles;
-        
-        private Noise noiseGenerator;
-        private bool showVoxelPointGrid;
+        private NativeArray<float3> vertices;
+        private NativeArray<int> triangles;
 
         private void Awake()
         {
@@ -40,35 +45,32 @@ namespace Procedural.Marching.Squares
             if (mesh == null)
             {
                 mesh = new Mesh();
-                mesh.MarkDynamic();
                 mesh.indexFormat = IndexFormat.UInt32;
                 mesh.name = "VoxelGrid Mesh";
             }
-
-            // Initialize vertices and triangles lists
-            vertices = new List<Vector3>();
-            triangles = new List<int>();
-            uvs = new List<Vector2>();
         }
 
         private void OnDestroy()
         {
             mesh.Clear();
             Destroy(mesh);
+
+            // Dispose the native arrays
+            vertices.Dispose();
+            triangles.Dispose();
+            voxelsData.Dispose();
         }
 
-        public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
+        public void Initialize(int chunkRes, float chunkSize)
         {
-            this.useInterpolation = useInterpolation;
-
-            if(chunkRes != this.chunkResolution)
+            if (chunkRes != this.chunkResolution)
             {
-                gameObject.name = "Chunk(" + x + "," + y + ")";
+                gameObject.name = "Chunk(" + chunkX + "," + chunkY + ")";
 
                 this.chunkResolution = chunkRes;
                 this.chunkSize = chunkSize;
-                
-                if(voxels != null)
+
+                if (voxels != null)
                 {
                     for (int i = 0; i < voxels.Length; i++)
                     {
@@ -78,6 +80,11 @@ namespace Procedural.Marching.Squares
 
                 // Create the array of voxels
                 voxels = new VoxelSquare[chunkResolution * chunkResolution];
+                voxelsData = new NativeArray<VoxelSquareData>(chunkResolution * chunkResolution, Allocator.Persistent);
+
+                // Initialize vertices and triangles lists
+                vertices = new NativeArray<float3>(chunkResolution * chunkResolution * 9 * 6, Allocator.Persistent);
+                triangles = new NativeArray<int>(chunkResolution * chunkResolution * 9 * 6, Allocator.Persistent);
 
                 // Greater the resolution, less is the size of the voxel
                 this.voxelSize = chunkSize / chunkResolution;
@@ -97,11 +104,6 @@ namespace Procedural.Marching.Squares
             Refresh();
         }
 
-        internal void SetVoxelScale(float voxelScale)
-        {
-            this.voxelScale = voxelScale;
-        }
-
         private void CreateVoxel(int voxelIndex, float x, float y)
         {
             VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
@@ -110,64 +112,112 @@ namespace Procedural.Marching.Squares
             voxelSquare.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
             voxelSquare.Initialize(x, y, voxelSize);
 
-            // Important part
-            voxelSquare.value = noiseGenerator.Generate(x, y);
-            voxelSquare.SetUsedByMarching(voxelSquare.value > noiseGenerator.isoLevel);
+            // Assign the noise value to the voxel square
+            voxelSquare.squareData.value = noiseGenerator.Generate(x, y);
+            voxelSquare.SetUsedByMarching(voxelSquare.squareData.value > noiseGenerator.isoLevel);
 
             // Debug option
             voxelSquare.ShowVoxel(showVoxelPointGrid);
 
             voxels[voxelIndex] = voxelSquare;
+            voxelsData[voxelIndex] = voxelSquare.squareData;
         }
 
         public void Refresh()
         {
-            foreach(VoxelSquare voxel in voxels)
+            for(int i = 0; i < 0; i++) 
             {
+                VoxelSquare voxel = voxels[i];
                 voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
-                voxel.value = noiseGenerator.Generate(voxel.position.x + transform.position.x, voxel.position.y + transform.position.y);
-                voxel.SetUsedByMarching(voxel.value > noiseGenerator.isoLevel);
+                voxel.squareData.value = noiseGenerator.Generate(voxel.squareData.position.x + transform.position.x, voxel.squareData.position.y + transform.position.y);
+                voxel.SetUsedByMarching(voxel.squareData.value > noiseGenerator.isoLevel);
                 voxel.ShowVoxel(showVoxelPointGrid);
             }
 
-            TriangulateVoxels();
-        }
-
-        public void SetNoiseGenerator(Noise noiseGenerator)
-        {
-            this.noiseGenerator = noiseGenerator;
-        }
-        public void SetShowVoxelPointGrid(bool showVoxelPointGrid)
-        {
-            this.showVoxelPointGrid = showVoxelPointGrid;
+            if (useMultithreading)
+            {
+                TriangulateVoxelsMultithread();
+            }
+            else
+            {
+                TriangulateVoxels();
+            }
         }
 
         public void TriangulateVoxels()
         {
-            // Clear all
-            vertices.Clear();
-            uvs.Clear();
-            triangles.Clear();
+            // Clear the mesh
             mesh.Clear();
-            
+
             int cells = chunkResolution - 1;
             int voxelIndex = 0;
+
+            // Clear the native array
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = 0;
+            }
+
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                triangles[i] = 0;
+            }
 
             for (int y = 0; y < cells; y++, voxelIndex++)
             {
                 for (int x = 0; x < cells; x++, voxelIndex++)
                 {
-                    TriangulateVoxel(
-                        voxels[voxelIndex],
-                        voxels[voxelIndex + 1],
-                        voxels[voxelIndex + chunkResolution],
-                        voxels[voxelIndex + chunkResolution + 1]);
+                    TriangulateVoxel(voxelIndex,
+                        voxels[voxelIndex].squareData,
+                        voxels[voxelIndex + 1].squareData,
+                        voxels[voxelIndex + chunkResolution].squareData,
+                        voxels[voxelIndex + chunkResolution + 1].squareData);
                 }
             }
 
             mesh.SetVertices(vertices);
-            mesh.SetUVs(0, uvs);
-            mesh.SetTriangles(triangles, 0);
+            mesh.SetTriangles(triangles.ToArray(), 0);
+
+            // Draw the mesh GPU
+            Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
+        }
+
+        public void TriangulateVoxelsMultithread()
+        {
+            // Clear all
+            mesh.Clear();
+
+            int cells = chunkResolution - 1;
+            int voxelIndex = 0;
+
+            // Clear the native array
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = 0;
+            }
+
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                triangles[i] = 0;
+            }
+
+            TriangulationJob job = new TriangulationJob()
+            {
+                squareData = voxelsData,
+                chunkResolution = chunkResolution,
+
+                triangles = triangles,
+                vertices = vertices,
+
+                isoLevel = noiseGenerator.isoLevel,
+                useInterpolation = useInterpolation
+            };
+
+            JobHandle jobHandle = job.Schedule(cells * cells, 128);
+            jobHandle.Complete();
+
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles.ToArray(), 0);
 
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
@@ -175,8 +225,9 @@ namespace Procedural.Marching.Squares
 
         #region Triangulation functions
 
-        public void TriangulateVoxel(VoxelSquare a, VoxelSquare b, 
-                                     VoxelSquare c, VoxelSquare d)
+        public void TriangulateVoxel(int voxelIndex, 
+                                     VoxelSquareData a, VoxelSquareData b,
+                                     VoxelSquareData c, VoxelSquareData d)
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
@@ -229,133 +280,331 @@ namespace Procedural.Marching.Squares
                 t_left = 0.5f;
             }
 
-            Vector2 top = Vector2.Lerp(c.position, d.position, t_top);
-            Vector2 right = Vector2.Lerp(d.position, b.position, t_right);
-            Vector2 bottom = Vector2.Lerp(b.position, a.position, t_bottom);
-            Vector2 left = Vector2.Lerp(a.position, c.position, t_left);
-            
+            float3 top = math.lerp(c.position, d.position, t_top);
+            float3 right = math.lerp(d.position, b.position, t_right);
+            float3 bottom = math.lerp(b.position, a.position, t_bottom);
+            float3 left = math.lerp(a.position, c.position, t_left);
+
+            int index = voxelIndex * 6 * 9;
+
             switch (cellType)
             {
                 case 0:
                     return;
                 case 1:
-                    AddTriangle(a.position, left, bottom);
+                    AddTriangle(index, a.position, left, bottom);
                     break;
                 case 2:
-                    AddTriangle(b.position, bottom, right);
+                    AddTriangle(index, b.position, bottom, right);
                     break;
                 case 4:
-                    AddTriangle(c.position, top, left);
+                    AddTriangle(index, c.position, top, left);
                     break;
                 case 8:
-                    AddTriangle(d.position, right, top);
+                    AddTriangle(index, d.position, right, top);
                     break;
                 case 3:
-                    AddQuad(a.position, left, right, b.position);
+                    AddQuad(index, a.position, left, right, b.position);
                     break;
                 case 5:
-                    AddQuad(a.position, c.position, top, bottom); 
+                    AddQuad(index, a.position, c.position, top, bottom);
                     break;
                 case 10:
-                    AddQuad(bottom, top, d.position, b.position);
+                    AddQuad(index, bottom, top, d.position, b.position);
                     break;
                 case 12:
-                    AddQuad(left, c.position, d.position, right);
+                    AddQuad(index, left, c.position, d.position, right);
                     break;
                 case 15:
-                    AddQuad(a.position, c.position, d.position, b.position);
+                    AddQuad(index, a.position, c.position, d.position, b.position);
                     break;
                 case 7:
-                    AddPentagon(a.position, c.position, top, right, b.position);
+                    AddPentagon(index, a.position, c.position, top, right, b.position);
                     break;
                 case 11:
-                    AddPentagon(b.position, a.position, left, top, d.position);
+                    AddPentagon(index, b.position, a.position, left, top, d.position);
                     break;
                 case 13:
-                    AddPentagon(c.position, d.position, right, bottom, a.position);
+                    AddPentagon(index, c.position, d.position, right, bottom, a.position);
                     break;
                 case 14:
-                    AddPentagon(d.position, b.position, bottom, left, c.position);
+                    AddPentagon(index, d.position, b.position, bottom, left, c.position);
                     break;
                 case 6:
-                    AddTriangle(b.position, bottom, right);
-                    AddTriangle(c.position, top, left);
+                    AddTwoTriangles(index, b.position, bottom, right, c.position, top, left);
                     break;
                 case 9:
-                    AddTriangle(a.position, left, bottom);
-                    AddTriangle(d.position, right, top);
+                    AddTwoTriangles(index, a.position, left, bottom, d.position, right, top);
                     break;
             }
         }
 
-        private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
+        private void AddTwoTriangles(int i, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
 
-            // Add uvs
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
+            vertices[i + 3] = a1;
+            vertices[i + 4] = b1;
+            vertices[i + 5] = c1;
+
+            triangles[i + 3] = i + 3;
+            triangles[i + 4] = i + 4;
+            triangles[i + 5] = i + 5;
         }
 
-        private void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+        private void AddTriangle(int i, float3 a, float3 b, float3 c)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
-            vertices.Add(d);
-            
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
-
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 3);
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
         }
 
-        private void AddPentagon(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e)
+        private void AddQuad(int i, float3 a, float3 b, float3 c, float3 d)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
-            vertices.Add(d);
-            vertices.Add(e);
-            
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 4].x + Vector2.up * vertices[vertexIndex + 4].y);
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+            vertices[i + 3] = d;
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 3);
+            triangles[i + 3] = i;
+            triangles[i + 4] = i + 2;
+            triangles[i + 5] = i + 3;
+        }
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 3);
-            triangles.Add(vertexIndex + 4);
+        private void AddPentagon(int i, float3 a, float3 b, float3 c, float3 d, float3 e)
+        {
+            vertices[i + 0] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+            vertices[i + 3] = d;
+            vertices[i + 4] = e;
 
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+
+            triangles[i + 3] = i;
+            triangles[i + 4] = i + 2;
+            triangles[i + 5] = i + 3;
+
+            triangles[i + 6] = i;
+            triangles[i + 7] = i + 3;
+            triangles[i + 8] = i + 4;
         }
 
         #endregion
+    }
+
+    [BurstCompatible]
+    public struct TriangulationJob : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<VoxelSquareData> squareData;
+        public int chunkResolution;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<float3> vertices;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<int> triangles;
+
+        public float isoLevel;
+        public bool useInterpolation;
+
+        public void Execute(int voxelIndex)
+        {
+            VoxelSquareData a = squareData[voxelIndex];
+            VoxelSquareData b = squareData[voxelIndex + 1];
+            VoxelSquareData c = squareData[voxelIndex + chunkResolution];
+            VoxelSquareData d = squareData[voxelIndex + chunkResolution + 1];
+
+            // Triangulation table
+            int cellType = 0; // Cell type may vary from 0 to 15
+            if (a.isUsedByMarching)
+            {
+                cellType |= 1;
+            }
+            if (b.isUsedByMarching)
+            {
+                cellType |= 2;
+            }
+            if (c.isUsedByMarching)
+            {
+                cellType |= 4;
+            }
+            if (d.isUsedByMarching)
+            {
+                cellType |= 8;
+            }
+
+            // Instead of top you lerp between A and B to get the position.
+            // Instead of right you lerp between B and C, etc.
+            // 
+            //          top
+            //       C-------D
+            //  left |       |  right
+            //       |       |
+            //       A-------B
+            //         bottom
+
+            // Intepolations t values
+            float t_top;
+            float t_right;
+            float t_bottom;
+            float t_left;
+
+            if (useInterpolation)
+            {
+                t_top = (isoLevel - c.value) / (d.value - c.value);
+                t_right = (isoLevel - d.value) / (b.value - d.value);
+                t_bottom = (isoLevel - b.value) / (a.value - b.value);
+                t_left = (isoLevel - a.value) / (c.value - a.value);
+            }
+            else
+            {
+                // No, interpolation. By default are mid edge vertex.
+                t_top = 0.5f;
+                t_right = 0.5f;
+                t_bottom = 0.5f;
+                t_left = 0.5f;
+            }
+
+            float3 top = math.lerp(c.position, d.position, t_top);
+            float3 right = math.lerp(d.position, b.position, t_right);
+            float3 bottom = math.lerp(b.position, a.position, t_bottom);
+            float3 left = math.lerp(a.position, c.position, t_left);
+
+            int index = voxelIndex * 6 * 9;
+
+            switch (cellType)
+            {
+                case 0:
+                    return;
+                case 1:
+                    AddTriangle(index, a.position, left, bottom);
+                    break;
+                case 2:
+                    AddTriangle(index, b.position, bottom, right);
+                    break;
+                case 4:
+                    AddTriangle(index, c.position, top, left);
+                    break;
+                case 8:
+                    AddTriangle(index, d.position, right, top);
+                    break;
+                case 3:
+                    AddQuad(index, a.position, left, right, b.position);
+                    break;
+                case 5:
+                    AddQuad(index, a.position, c.position, top, bottom);
+                    break;
+                case 10:
+                    AddQuad(index, bottom, top, d.position, b.position);
+                    break;
+                case 12:
+                    AddQuad(index, left, c.position, d.position, right);
+                    break;
+                case 15:
+                    AddQuad(index, a.position, c.position, d.position, b.position);
+                    break;
+                case 7:
+                    AddPentagon(index, a.position, c.position, top, right, b.position);
+                    break;
+                case 11:
+                    AddPentagon(index, b.position, a.position, left, top, d.position);
+                    break;
+                case 13:
+                    AddPentagon(index, c.position, d.position, right, bottom, a.position);
+                    break;
+                case 14:
+                    AddPentagon(index, d.position, b.position, bottom, left, c.position);
+                    break;
+                case 6:
+                    AddTwoTriangles(index, b.position, bottom, right, c.position, top, left);
+                    break;
+                case 9:
+                    AddTwoTriangles(index, a.position, left, bottom, d.position, right, top);
+                    break;
+            }
+        }
+        private void AddTwoTriangles(int i, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
+        {
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+
+            vertices[i + 3] = a1;
+            vertices[i + 4] = b1;
+            vertices[i + 5] = c1;
+
+            triangles[i + 3] = i + 3;
+            triangles[i + 4] = i + 4;
+            triangles[i + 5] = i + 5;
+        }
+
+        private void AddTriangle(int i, float3 a, float3 b, float3 c)
+        {
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+        }
+
+        private void AddQuad(int i, float3 a, float3 b, float3 c, float3 d)
+        {
+            vertices[i] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+            vertices[i + 3] = d;
+
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+
+            triangles[i + 3] = i;
+            triangles[i + 4] = i + 2;
+            triangles[i + 5] = i + 3;
+        }
+
+        private void AddPentagon(int i, float3 a, float3 b, float3 c, float3 d, float3 e)
+        {
+            vertices[i + 0] = a;
+            vertices[i + 1] = b;
+            vertices[i + 2] = c;
+            vertices[i + 3] = d;
+            vertices[i + 4] = e;
+
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+
+            triangles[i + 3] = i;
+            triangles[i + 4] = i + 2;
+            triangles[i + 5] = i + 3;
+
+            triangles[i + 6] = i;
+            triangles[i + 7] = i + 3;
+            triangles[i + 8] = i + 4;
+        }
     }
 }
