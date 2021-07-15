@@ -39,6 +39,7 @@ namespace Procedural.Marching.Squares
             if (mesh == null)
             {
                 mesh = new Mesh();
+                mesh.MarkDynamic();
                 mesh.indexFormat = IndexFormat.UInt32;
                 mesh.name = "VoxelGrid Mesh";
             }
