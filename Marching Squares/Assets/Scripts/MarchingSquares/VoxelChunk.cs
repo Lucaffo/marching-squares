@@ -95,17 +95,18 @@ namespace Procedural.Marching.Squares
 
         private void CreateVoxel(int voxelIndex, float x, float y)
         {
-            VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
-            voxelSquare.transform.parent = transform;
-            voxelSquare.transform.localScale = Vector3.one * voxelSize * voxelScale;
-            voxelSquare.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
-            voxelSquare.Initialize(x, y, voxelSize);
+            VoxelSquare voxel = Instantiate(voxelQuadPrefab);
+            voxel.transform.parent = transform;
+            voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
+            voxel.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
+            voxel.Initialize(x, y, voxelSize);
 
-            // Important part
-            voxelSquare.value = noiseGenerator.Generate(x, y);
-            voxelSquare.isUsedByMarching = voxelSquare.value > noiseGenerator.isoLevel;
+            // Marching evaluation
+            voxel.value = noiseGenerator.Generate(x, y);
+            voxel.isUsedByMarching = voxel.value > noiseGenerator.isoLevel;
 
-            voxels[voxelIndex] = voxelSquare;
+            // Set the voxel to the voxel
+            voxels[voxelIndex] = voxel;
         }
 
         public void Refresh()
@@ -139,6 +140,7 @@ namespace Procedural.Marching.Squares
             int cells = chunkResolution - 1;
             int voxelIndex = 0;
 
+            // Triangulate all the voxels inside the grid
             for (int y = 0; y < cells; y++, voxelIndex++)
             {
                 for (int x = 0; x < cells; x++, voxelIndex++)
@@ -147,13 +149,17 @@ namespace Procedural.Marching.Squares
                         voxels[voxelIndex],
                         voxels[voxelIndex + 1],
                         voxels[voxelIndex + chunkResolution],
-                        voxels[voxelIndex + chunkResolution + 1]);
+                        voxels[voxelIndex + chunkResolution + 1],
+                        noiseGenerator.isoLevel);
                 }
             }
 
+            // Set the mesh vertices, uvs and triangles
             mesh.SetVertices(vertices);
             mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
+
+            /// mesh.Optimize();
 
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
@@ -162,7 +168,7 @@ namespace Procedural.Marching.Squares
         #region Triangulation functions
 
         public void TriangulateVoxel(VoxelSquare a, VoxelSquare b, 
-                                     VoxelSquare c, VoxelSquare d)
+                                     VoxelSquare c, VoxelSquare d, float isoLevel)
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
@@ -201,10 +207,10 @@ namespace Procedural.Marching.Squares
 
             if (useInterpolation)
             {
-                t_top = (noiseGenerator.isoLevel - c.value) / (d.value - c.value);
-                t_right = (noiseGenerator.isoLevel - d.value) / (b.value - d.value);
-                t_bottom = (noiseGenerator.isoLevel - b.value) / (a.value - b.value);
-                t_left = (noiseGenerator.isoLevel - a.value) / (c.value - a.value);
+                t_top = (isoLevel - c.value) / (d.value - c.value);
+                t_right = (isoLevel - d.value) / (b.value - d.value);
+                t_bottom = (isoLevel - b.value) / (a.value - b.value);
+                t_left = (isoLevel - a.value) / (c.value - a.value);
             }
             else
             {
