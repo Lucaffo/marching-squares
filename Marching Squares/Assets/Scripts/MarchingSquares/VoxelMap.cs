@@ -24,7 +24,7 @@ namespace Procedural.Marching.Squares
         [Range(0f, 1f)] public float voxelScale = 0.1f;
         
         // Chunks array
-        private List<VoxelChunk> chunks;
+        public List<VoxelChunk> chunks;
 
         private float chunkSize, voxelSize;
 

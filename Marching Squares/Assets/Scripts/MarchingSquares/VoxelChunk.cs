@@ -28,7 +28,7 @@ namespace Procedural.Marching.Squares
         private int chunkResolution;
         private float voxelSize;
 
-        private Mesh mesh;
+        public Mesh mesh;
 
         // Vertices and triangles of all the voxels square in chunk
         private List<Vector3> vertices;
