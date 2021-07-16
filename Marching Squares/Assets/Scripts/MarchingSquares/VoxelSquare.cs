@@ -8,6 +8,7 @@ namespace Procedural.Marching.Squares
         [Header("Voxel square settings")]
         public float value;
         public bool isUsedByMarching;
+        
         public Vector2 position;
 
         [Header("Points mesh materials")]
@@ -23,33 +24,21 @@ namespace Procedural.Marching.Squares
 
         public Material notUsedMaterial;
 
+        private Matrix4x4 meshMatrix;
+
         public void Initialize(float x, float y, float size)
         {
-            // Calculate its mainly 2 edge positions
+            // Calculate its mainly 2 edge positions and cache it
             position.x = (x) * size;
             position.y = (y) * size;
-
-            transform.position -= Vector3.forward * 20f;
-        }
-
-        public void SetUsedByMarching(bool isUsed)
-        {
-            isUsedByMarching = isUsed;
-        }
-
-        public void ShowVoxel(bool showVoxelPointGrid)
-        {
-            if(showVoxelPointGrid)
-            {
-                DrawSquare();
-            }
         }
 
         public void DrawSquare()
         {
-            Matrix4x4 meshMatrix = transform.localToWorldMatrix;
+            // Cache the mesh matrix
+            meshMatrix = transform.localToWorldMatrix;
 
-            if(isUsedByMarching)
+            if (isUsedByMarching)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
                 return;

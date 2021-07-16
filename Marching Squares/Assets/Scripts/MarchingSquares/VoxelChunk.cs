@@ -103,22 +103,26 @@ namespace Procedural.Marching.Squares
 
             // Important part
             voxelSquare.value = noiseGenerator.Generate(x, y);
-            voxelSquare.SetUsedByMarching(voxelSquare.value > noiseGenerator.isoLevel);
-
-            // Debug option
-            voxelSquare.ShowVoxel(showVoxelPointGrid);
+            voxelSquare.isUsedByMarching = voxelSquare.value > noiseGenerator.isoLevel;
 
             voxels[voxelIndex] = voxelSquare;
         }
 
         public void Refresh()
         {
+            // Caching the transform position
+            Vector3 pos = transform.position;
+
             foreach(VoxelSquare voxel in voxels)
             {
                 voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
-                voxel.value = noiseGenerator.Generate(voxel.position.x + transform.position.x, voxel.position.y + transform.position.y);
-                voxel.SetUsedByMarching(voxel.value > noiseGenerator.isoLevel);
-                voxel.ShowVoxel(showVoxelPointGrid);
+                voxel.value = noiseGenerator.Generate(voxel.position.x + pos.x, voxel.position.y + pos.y);
+                voxel.isUsedByMarching = voxel.value > noiseGenerator.isoLevel;
+               
+                if(showVoxelPointGrid)
+                {
+                    voxel.DrawSquare();
+                }
             }
 
             TriangulateVoxels();
@@ -335,7 +339,6 @@ namespace Procedural.Marching.Squares
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 3);
             triangles.Add(vertexIndex + 4);
-
         }
 
         #endregion
