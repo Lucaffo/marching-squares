@@ -12,6 +12,7 @@ namespace Procedural.Marching.Squares
         [Header("Map settings")]
         public int mapScale = 2;
         public bool useInterpolation = false;
+        public bool useUvMapping = false;
 
         [Header("Chunk settings")]
         public int chunkResolution = 2;
@@ -59,32 +60,33 @@ namespace Procedural.Marching.Squares
                 chunk.showVoxelPointGrid = showVoxelPointGrid;
                 chunk.voxelScale = voxelScale;
                 chunk.useInterpolation = useInterpolation;
+                chunk.useUVMapping = useUvMapping;
                 chunk.Initialize(voxelResolution, chunkSize);
 
                 // First chunk case
-                if (chunk.x == 0 && chunk.y == 0)
+                if (chunk.chunkX == 0 && chunk.chunkY == 0)
                 {
                     chunk.transform.localPosition = Vector3.zero;
                     continue;
                 }
 
                 // Other chunk cases
-                if (chunk.x == chunk.y)
+                if (chunk.chunkX == chunk.chunkY)
                 {
                     // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                     continue;
                 }
 
-                if (chunk.x > chunk.y)
+                if (chunk.chunkX > chunk.chunkY)
                 {
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                     continue;
                 }
 
-                if (chunk.x < chunk.y)
+                if (chunk.chunkX < chunk.chunkY)
                 {
-                    chunk.transform.localPosition = Vector3.right * (chunk.x * (chunkSize - voxelSize)) + Vector3.up * (chunk.y * (chunkSize - voxelSize));
+                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
                 }
             }
         }
@@ -96,11 +98,12 @@ namespace Procedural.Marching.Squares
             chunk.showVoxelPointGrid = showVoxelPointGrid;
             chunk.voxelScale = voxelScale;
             chunk.useInterpolation = useInterpolation;
+            chunk.useUVMapping = useUvMapping;
 
             chunk.transform.parent = transform;
 
-            chunk.x = x;
-            chunk.y = y;
+            chunk.chunkX = x;
+            chunk.chunkY = y;
 
             chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);

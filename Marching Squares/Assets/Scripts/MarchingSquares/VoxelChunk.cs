@@ -11,19 +11,22 @@ namespace Procedural.Marching.Squares
     {
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
+
+        // Materials
         public Material voxelMaterial;
+
+        public int chunkX, chunkY;
 
         public Noise noiseGenerator;
         public bool showVoxelPointGrid;
         public float voxelScale;
         public bool useInterpolation;
+        public bool useUVMapping;
+
+        private VoxelSquare[] voxels;
 
         private int chunkResolution;
-        private float chunkSize;
-        private VoxelSquare[] voxels;
         private float voxelSize;
-
-        public int x, y;
 
         private Mesh mesh;
 
@@ -59,10 +62,9 @@ namespace Procedural.Marching.Squares
         {
             if(chunkRes != this.chunkResolution)
             {
-                gameObject.name = "Chunk(" + x + "," + y + ")";
+                gameObject.name = "Chunk(" + chunkX + "," + chunkY + ")";
 
                 this.chunkResolution = chunkRes;
-                this.chunkSize = chunkSize;
                 
                 if(voxels != null)
                 {
@@ -156,10 +158,12 @@ namespace Procedural.Marching.Squares
 
             // Set the mesh vertices, uvs and triangles
             mesh.SetVertices(vertices);
-            mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
 
-            /// mesh.Optimize();
+            if (useUVMapping)
+            {
+                mesh.SetUVs(0, uvs);
+            }
 
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
@@ -172,6 +176,7 @@ namespace Procedural.Marching.Squares
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
+
             if (a.isUsedByMarching)
             {
                 cellType |= 1;
@@ -187,6 +192,11 @@ namespace Procedural.Marching.Squares
             if (d.isUsedByMarching)
             {
                 cellType |= 8;
+            }
+
+            if(cellType == 0)
+            {
+                return;
             }
 
             // Instead of top you lerp between A and B to get the position.
@@ -221,10 +231,27 @@ namespace Procedural.Marching.Squares
                 t_left = 0.5f;
             }
 
-            Vector2 top = Vector2.Lerp(c.position, d.position, t_top);
-            Vector2 right = Vector2.Lerp(d.position, b.position, t_right);
-            Vector2 bottom = Vector2.Lerp(b.position, a.position, t_bottom);
-            Vector2 left = Vector2.Lerp(a.position, c.position, t_left);
+            // Lerp unclamped is better in this case in order to avoid not used moltiplication
+            // My value is already between 0 and 1, no needed to over safety
+            /*
+                Lerp:
+
+                public static float Lerp(float a, float b, float t)
+                {
+                return a + (b - a) * Mathf.Clamp01(t);
+                }
+
+                LerpUnclamped:
+
+                public static float LerpUnclamped(float a, float b, float t)
+                {
+                return a + (b - a) * t;
+                }
+             */
+            Vector2 top = Vector2.LerpUnclamped(c.position, d.position, t_top);
+            Vector2 right = Vector2.LerpUnclamped(d.position, b.position, t_right);
+            Vector2 bottom = Vector2.LerpUnclamped(b.position, a.position, t_bottom);
+            Vector2 left = Vector2.LerpUnclamped(a.position, c.position, t_left);
             
             switch (cellType)
             {
@@ -288,9 +315,12 @@ namespace Procedural.Marching.Squares
             vertices.Add(c);
 
             // Add uvs
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
+            if (useUVMapping)
+            {
+                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+            }
 
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
@@ -304,11 +334,14 @@ namespace Procedural.Marching.Squares
             vertices.Add(b);
             vertices.Add(c);
             vertices.Add(d);
-            
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
+
+            if (useUVMapping)
+            {
+                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+                uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
+            }
 
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
@@ -327,12 +360,15 @@ namespace Procedural.Marching.Squares
             vertices.Add(c);
             vertices.Add(d);
             vertices.Add(e);
-            
-            uvs.Add(Vector2.right * vertices[vertexIndex].x + Vector2.up * vertices[vertexIndex].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 1].x + Vector2.up * vertices[vertexIndex + 1].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 2].x + Vector2.up * vertices[vertexIndex + 2].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 3].x + Vector2.up * vertices[vertexIndex + 3].y);
-            uvs.Add(Vector2.right * vertices[vertexIndex + 4].x + Vector2.up * vertices[vertexIndex + 4].y);
+
+            if (useUVMapping)
+            {
+                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+                uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
+                uvs.Add(Vector2.right * e.x + Vector2.up * e.y);
+            }
 
             triangles.Add(vertexIndex);
             triangles.Add(vertexIndex + 1);
