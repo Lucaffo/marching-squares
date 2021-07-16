@@ -56,9 +56,10 @@ namespace Procedural.Marching.Squares
             // Refresh all the chunks
             foreach (VoxelChunk chunk in chunks)
             {
-                chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
-                chunk.SetVoxelScale(voxelScale);
-                chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
+                chunk.showVoxelPointGrid = showVoxelPointGrid;
+                chunk.voxelScale = voxelScale;
+                chunk.useInterpolation = useInterpolation;
+                chunk.Initialize(voxelResolution, chunkSize);
 
                 // First chunk case
                 if (chunk.x == 0 && chunk.y == 0)
@@ -91,15 +92,17 @@ namespace Procedural.Marching.Squares
         public void CreateChunkAt(int x, int y)
         {
             VoxelChunk chunk = Instantiate(chunkPrefab);
-            chunk.SetNoiseGenerator(noiseGenerator);
-            chunk.SetShowVoxelPointGrid(showVoxelPointGrid);
-            chunk.SetVoxelScale(voxelScale);
+            chunk.noiseGenerator = noiseGenerator;
+            chunk.showVoxelPointGrid = showVoxelPointGrid;
+            chunk.voxelScale = voxelScale;
+            chunk.useInterpolation = useInterpolation;
+
             chunk.transform.parent = transform;
 
             chunk.x = x;
             chunk.y = y;
 
-            chunk.Initialize(voxelResolution, chunkSize, useInterpolation);
+            chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
 
             // First chunk case

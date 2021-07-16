@@ -49,12 +49,6 @@ namespace Procedural.Marching.Squares
         {
             Matrix4x4 meshMatrix = transform.localToWorldMatrix;
 
-            /*if(isUsedByMarching)
-            {
-                Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);
-                return;
-            }*/
-
             if(isUsedByMarching)
             {
                 Graphics.DrawMesh(squareMesh, meshMatrix, maxIsoValueMaterial, 0);

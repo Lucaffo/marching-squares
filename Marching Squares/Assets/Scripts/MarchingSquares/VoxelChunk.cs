@@ -13,14 +13,17 @@ namespace Procedural.Marching.Squares
         public VoxelSquare voxelQuadPrefab;
         public Material voxelMaterial;
 
-        private bool useInterpolation;
+        public Noise noiseGenerator;
+        public bool showVoxelPointGrid;
+        public float voxelScale;
+
+        public bool useInterpolation;
 
         private int chunkResolution;
         private float chunkSize;
 
         private VoxelSquare[] voxels;
         private float voxelSize;
-        private float voxelScale;
 
         public int x, y;
 
@@ -30,9 +33,6 @@ namespace Procedural.Marching.Squares
         private List<Vector3> vertices;
         private List<Vector2> uvs;
         private List<int> triangles;
-        
-        private Noise noiseGenerator;
-        private bool showVoxelPointGrid;
 
         private void Awake()
         {
@@ -57,10 +57,8 @@ namespace Procedural.Marching.Squares
             Destroy(mesh);
         }
 
-        public void Initialize(int chunkRes, float chunkSize, bool useInterpolation)
+        public void Initialize(int chunkRes, float chunkSize)
         {
-            this.useInterpolation = useInterpolation;
-
             if(chunkRes != this.chunkResolution)
             {
                 gameObject.name = "Chunk(" + x + "," + y + ")";
@@ -97,11 +95,6 @@ namespace Procedural.Marching.Squares
             Refresh();
         }
 
-        internal void SetVoxelScale(float voxelScale)
-        {
-            this.voxelScale = voxelScale;
-        }
-
         private void CreateVoxel(int voxelIndex, float x, float y)
         {
             VoxelSquare voxelSquare = Instantiate(voxelQuadPrefab);
@@ -131,15 +124,6 @@ namespace Procedural.Marching.Squares
             }
 
             TriangulateVoxels();
-        }
-
-        public void SetNoiseGenerator(Noise noiseGenerator)
-        {
-            this.noiseGenerator = noiseGenerator;
-        }
-        public void SetShowVoxelPointGrid(bool showVoxelPointGrid)
-        {
-            this.showVoxelPointGrid = showVoxelPointGrid;
         }
 
         public void TriangulateVoxels()
