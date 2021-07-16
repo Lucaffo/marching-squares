@@ -104,31 +104,6 @@ namespace Procedural.Marching.Squares
 
             chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
-
-            // First chunk case
-            if (x == 0 && y == 0)
-            {
-                return;
-            }
-
-            // Other chunk cases
-            if(x == y)
-            {
-                // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-                return;
-            }
-            
-            if(x > y)
-            {
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-                return;
-            }
-            
-            if(x < y)
-            {
-                chunk.transform.localPosition = Vector3.right * (x * (chunkSize - voxelSize)) + Vector3.up * (y * (chunkSize - voxelSize));
-            }
         }
 
         public void AddNoiseOffset(Vector3 offset)

@@ -16,12 +16,10 @@ namespace Procedural.Marching.Squares
         public Noise noiseGenerator;
         public bool showVoxelPointGrid;
         public float voxelScale;
-
         public bool useInterpolation;
 
         private int chunkResolution;
         private float chunkSize;
-
         private VoxelSquare[] voxels;
         private float voxelSize;
 
