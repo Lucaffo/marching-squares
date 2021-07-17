@@ -10,12 +10,13 @@
     <h4> A marching square algorithm showcaser that use compute shaders.</h4>
 </div>
 
+![image](https://user-images.githubusercontent.com/55745404/126045929-2b865980-2072-4ea0-b8f6-4d0d9077f0c6.png)
+
 
 Marching Squares Algorithm
 ===
 This project is realized for a paper research for the procedural content generation and aim to show how the marching squares algorithm works with an interactive software.
 
-![image](https://user-images.githubusercontent.com/55745404/126045792-85631322-e591-4613-8481-8b8cbf157804.png)
 
 ## Features
 + Multichunk up to 4x4.
