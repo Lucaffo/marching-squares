@@ -62,7 +62,6 @@ namespace Procedural.Marching.Squares
             if (mesh == null)
             {
                 mesh = new Mesh();
-                mesh.MarkDynamic();
                 mesh.indexFormat = IndexFormat.UInt32;
                 mesh.name = "VoxelGrid Mesh";
             }
@@ -204,6 +203,9 @@ namespace Procedural.Marching.Squares
                 }
             }
 
+
+            mesh.MarkDynamic();
+
             // Set the mesh vertices, uvs and triangles
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
@@ -212,8 +214,6 @@ namespace Procedural.Marching.Squares
             {
                 mesh.SetUVs(0, uvs);
             }
-
-            mesh.Optimize();
 
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
@@ -274,6 +274,9 @@ namespace Procedural.Marching.Squares
                     uvs.Add(tris[i].cUV);
                 }
             }
+
+
+            mesh.MarkDynamic();
 
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
