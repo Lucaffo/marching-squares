@@ -3,37 +3,30 @@ using UnityEngine;
 
 namespace Procedural.Marching.Squares
 {
+    [Serializable]
+    public struct VoxelData
+    {
+        public Vector2 position;
+        public float value;
+    }
+
     public class VoxelSquare : MonoBehaviour
     {
-        [Header("Voxel square settings")]
-        public float value;
+        // Caching the bool check in order to save computation
         public bool isUsedByMarching;
-        
-        public Vector2 position;
 
         [Header("Points mesh materials")]
         public Mesh squareMesh;
-
         public Material maxIsoValueMaterial;
-
         [Range(0, 1)] public float midThreeshold = 0.5f;
         public Material midIsoValueMaterial;
-
         [Range(0, 1)] public float lowThreeshold = 0.2f;
         public Material lowIsoValueMaterial;
-
         public Material notUsedMaterial;
 
         private Matrix4x4 meshMatrix;
 
-        public void Initialize(float x, float y, float size)
-        {
-            // Calculate its mainly 2 edge positions and cache it
-            position.x = (x) * size;
-            position.y = (y) * size;
-        }
-
-        public void DrawSquare()
+        public void DrawSquare(float value)
         {
             // Cache the mesh matrix
             meshMatrix = transform.localToWorldMatrix;

@@ -1,30 +1,39 @@
 #pragma kernel March
 
-static const int numThreads = 8;
-
 struct Triangle {
-    float3 vertexC;
-    float3 vertexB;
-    float3 vertexA;
+    float2 vertexA;
+    float2 vertexB;
+    float2 vertexC;
+};
+
+struct VoxelData
+{
+    float2 position;
+    float isoValue;
 };
 
 AppendStructuredBuffer<Triangle> triangles;
-RWStructuredBuffer<float4> points;
+RWStructuredBuffer<VoxelData> voxels;
 
 int cells;
 float isoLevel;
 bool useInterpolation;
 
-float4 lerp(float4 a, float4 b, float w)
+float3 lerp(float3 a, float3 b, float w)
 {
   return a + w*(b-a);
+}
+
+float2 interpolateVerts(VoxelData v1, VoxelData v2) {
+    float t = (isoLevel - v1.isoValue) / (v2.isoValue - v1.isoValue);
+    return v1.position + t * (v2.position-v1.position);
 }
 
 int indexFromCoord(int x, int y) {
     return y * cells + x;
 }
 
-void AddTriangle(float4 a, float4 b, float4 c)
+void AddTriangle(float2 a, float2 b, float2 c)
 {
     Triangle tri;
     tri.vertexA = a;
@@ -34,48 +43,47 @@ void AddTriangle(float4 a, float4 b, float4 c)
     triangles.Append(tri);
 }
 
-void AddQuad(float4 a, float4 b, float4 c, float4 d)
+void AddQuad(float2 a, float2 b, float2 c, float2 d)
 {
     AddTriangle(a, b, c);
     AddTriangle(a, c, d);
 }
 
-void AddPentagon(float4 a, float4 b, float4 c, float4 d, float4 e)
+void AddPentagon(float2 a, float2 b, float2 c, float2 d, float2 e)
 {
     AddTriangle(a, b, c);
     AddTriangle(a, c, d);
     AddTriangle(a, d, e);
 }
 
-[numthreads(numThreads,numThreads,1)]
+[numthreads(16, 1, 1)]
 void March (int3 id : SV_DispatchThreadID)
 {   
-    // Stop one point before the end because voxel includes neighbouring points
-    if (id.x >= cells-1 || id.y >= cells-1 || id.z >= cells-1) {
-        return;
-    }
+    uint index = id.x;
 
     // Points of the square
-    float4 squareCorners[4] = {
-        points[indexFromCoord(id.x, id.y)],
-        points[indexFromCoord(id.x + 1, id.y)],
-        points[indexFromCoord(id.x, id.y + 1)],
-        points[indexFromCoord(id.x + 1, id.y + 1)]
+    VoxelData squareCorners[4] = {
+        voxels[index],
+        voxels[index + 1],
+        voxels[index + cells + 1],
+        voxels[index + cells + 2]
     };
 
     // Cell corners
-    float4 a = squareCorners[0];
-    float4 b = squareCorners[1];
-    float4 c = squareCorners[2];
-    float4 d = squareCorners[3];
+    VoxelData a = squareCorners[0];
+    VoxelData b = squareCorners[1];
+    VoxelData c = squareCorners[2];
+    VoxelData d = squareCorners[3];
 
     // Calculate unique index for each cube configuration.
     // There are 16 possible values
     int cellType = 0; 
-    if (a.w < isoLevel) cellType |= 1;
-    if (b.w < isoLevel) cellType |= 2;
-    if (c.w < isoLevel) cellType |= 4;
-    if (d.w < isoLevel) cellType |= 8;
+    if (a.isoValue > isoLevel) cellType |= 1;
+    if (b.isoValue > isoLevel) cellType |= 2;
+    if (c.isoValue > isoLevel) cellType |= 4;
+    if (d.isoValue > isoLevel) cellType |= 8;
+
+    if(cellType == 0) return;
 
     // Instead of top you lerp between A and B to get the position.
     // Instead of right you lerp between B and C, etc.
@@ -87,7 +95,6 @@ void March (int3 id : SV_DispatchThreadID)
     //       A-------B
     //         bottom
 
-
     // Interpolation part
     float t_top;
     float t_right;
@@ -96,10 +103,10 @@ void March (int3 id : SV_DispatchThreadID)
 
     if(useInterpolation)
     {
-        t_top = (isoLevel - c.w) / (d.w - c.w);
-        t_right = (isoLevel - d.w) / (b.w - d.w);
-        t_bottom = (isoLevel - b.w) / (a.w - b.w);
-        t_left = (isoLevel - a.w) / (c.w - a.w);
+        t_top = (isoLevel - c.isoValue) / (d.isoValue - c.isoValue);
+        t_right = (isoLevel - d.isoValue) / (b.isoValue - d.isoValue);
+        t_bottom = (isoLevel - b.isoValue) / (a.isoValue - b.isoValue);
+        t_left = (isoLevel - a.isoValue) / (c.isoValue - a.isoValue);
     }
     else
     {
@@ -110,61 +117,61 @@ void March (int3 id : SV_DispatchThreadID)
         t_left = 0.5;
     }
 
-    float4 top = lerp(c, d, t_top); 
-    float4 right = lerp(d, b, t_right);
-    float4 bottom = lerp(b, a, t_bottom);
-    float4 left = lerp(a, c, t_left);
+    float2 top = lerp(c.position, d.position, t_top); 
+    float2 right = lerp(d.position, b.position, t_right);
+    float2 bottom = lerp(b.position, a.position, t_bottom);
+    float2 left = lerp(a.position, c.position, t_left);
 
     switch(cellType)
     {
         case 0:
             return;
         case 1:
-            AddTriangle(a, left, bottom);
-            break;
+            AddTriangle(a.position, left, bottom);
+            return;
         case 2:
-            AddTriangle(b, bottom, right);
-            break;
+            AddTriangle(b.position, bottom, right);
+            return;
         case 4:
-            AddTriangle(c, top, left);
-            break;
+            AddTriangle(c.position, top, left);
+            return;
         case 8:
-            AddTriangle(d, right, top);
-            break;
+            AddTriangle(d.position, right, top);
+            return;
         case 3:
-            AddQuad(a, left, right, b);
-            break;
+            AddQuad(a.position, left, right, b.position);
+            return;
         case 5:
-            AddQuad(a, c, top, bottom);
-            break;
+            AddQuad(a.position, c.position, top, bottom);
+            return;
         case 10:
-            AddQuad(bottom, top, d, b);
-            break;
+            AddQuad(bottom, top, d.position, b.position);
+            return;
         case 12:
-            AddQuad(left, c, d, right);
-            break;
+            AddQuad(left, c.position, d.position, right);
+            return;
         case 15:
-            AddQuad(a, c, d, b);
-            break;
+            AddQuad(a.position, c.position, d.position, b.position);
+            return;
         case 7:
-            AddPentagon(a, c, top, right, b);
-            break;
+            AddPentagon(a.position, c.position, top, right, b.position);
+            return;
         case 11:
-            AddPentagon(b, a, left, top, d);
-            break;
+            AddPentagon(b.position, a.position, left, top, d.position);
+            return;
         case 13:
-            AddPentagon(c, d, right, bottom, a);
-            break;
+            AddPentagon(c.position, d.position, right, bottom, a.position);
+            return;
         case 14:
-            AddPentagon(d, b, bottom, left, c);
-            break;
+            AddPentagon(d.position, b.position, bottom, left, c.position);
+            return;
         case 6:
-            AddTriangle(b, bottom, right);
-            AddTriangle(c, top, left);
-            break;
+            AddTriangle(b.position, bottom, right);
+            AddTriangle(c.position, top, left);
+            return;
         case 9:
-            AddTriangle(a, left, bottom);
-            AddTriangle(d, right, top);
-            break;
+            AddTriangle(a.position, left, bottom);
+            AddTriangle(d.position, right, top);
+            return;
     }
 }

@@ -1,16 +1,29 @@
 using NoiseGenerator;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Procedural.Marching.Squares
 {
+    struct Triangle
+    {
+        public Vector2 a;
+        public Vector2 b;
+        public Vector2 c;
+    }
+
     // Select only parent
     [SelectionBase]
     public class VoxelChunk : MonoBehaviour
     {
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
+
+        public ComputeShader marchingCompute;
+        private ComputeBuffer voxelDataBuffer;
+        private ComputeBuffer triangleDataBuffer;
+        private ComputeBuffer triCountBuffer;
 
         // Materials
         public Material voxelMaterial;
@@ -22,8 +35,10 @@ namespace Procedural.Marching.Squares
         public float voxelScale;
         public bool useInterpolation;
         public bool useUVMapping;
+        public bool useComputeShader;
 
         private VoxelSquare[] voxels;
+        private VoxelData[] voxelsData;
 
         private int chunkResolution;
         private float voxelSize;
@@ -56,6 +71,11 @@ namespace Procedural.Marching.Squares
         {
             mesh.Clear();
             Destroy(mesh);
+
+            // Dispose the compute buffers
+            voxelDataBuffer.Dispose();
+            triangleDataBuffer.Dispose();
+            triCountBuffer.Dispose();
         }
 
         public void Initialize(int chunkRes, float chunkSize)
@@ -76,6 +96,7 @@ namespace Procedural.Marching.Squares
 
                 // Create the array of voxels
                 voxels = new VoxelSquare[chunkResolution * chunkResolution];
+                voxelsData = new VoxelData[chunkResolution * chunkResolution];
 
                 // Greater the resolution, less is the size of the voxel
                 this.voxelSize = chunkSize / chunkResolution;
@@ -92,6 +113,19 @@ namespace Procedural.Marching.Squares
                 }
             }
 
+            triangleDataBuffer?.Release();
+            voxelDataBuffer?.Release();
+            triCountBuffer?.Release();
+
+            // Calculate the compute buffer again
+            int voxelDataStride = Marshal.SizeOf(typeof(Vector2)) + Marshal.SizeOf(typeof(float));
+            voxelDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, voxelDataStride);
+
+            int triangleDataStride = Marshal.SizeOf(typeof(Vector2)) * 3;
+            triangleDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution * 5, triangleDataStride, ComputeBufferType.Append);
+
+            triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+
             Refresh();
         }
 
@@ -101,14 +135,14 @@ namespace Procedural.Marching.Squares
             voxel.transform.parent = transform;
             voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
             voxel.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
-            voxel.Initialize(x, y, voxelSize);
 
             // Marching evaluation
-            voxel.value = noiseGenerator.Generate(x, y);
-            voxel.isUsedByMarching = voxel.value > noiseGenerator.isoLevel;
+            voxel.isUsedByMarching = voxelsData[voxelIndex].value > noiseGenerator.isoLevel;
 
             // Set the voxel to the voxel
             voxels[voxelIndex] = voxel;
+            voxelsData[voxelIndex].value = noiseGenerator.Generate(x, y);
+            voxelsData[voxelIndex].position = new Vector2(x * voxelSize, y * voxelSize);
         }
 
         public void Refresh()
@@ -116,19 +150,27 @@ namespace Procedural.Marching.Squares
             // Caching the transform position
             Vector3 pos = transform.position;
 
-            foreach(VoxelSquare voxel in voxels)
+            for(int i = 0; i < voxelsData.Length; i++)
             {
-                voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
-                voxel.value = noiseGenerator.Generate(voxel.position.x + pos.x, voxel.position.y + pos.y);
-                voxel.isUsedByMarching = voxel.value > noiseGenerator.isoLevel;
-               
+                voxelsData[i].value = noiseGenerator.Generate(voxelsData[i].position.x + pos.x, voxelsData[i].position.y + pos.y);
+                
+                // Optimize if the grid is not showed
                 if(showVoxelPointGrid)
                 {
-                    voxel.DrawSquare();
+                    voxels[i].transform.localScale = Vector3.one * voxelSize * voxelScale;
+                    voxels[i].isUsedByMarching = voxelsData[i].value > noiseGenerator.isoLevel;
+                    voxels[i].DrawSquare(voxelsData[i].value);
                 }
             }
-
-            TriangulateVoxels();
+            
+            if(useComputeShader)
+            {
+                TriangulateVoxelsCompute();
+            }
+            else
+            {
+                TriangulateVoxels();
+            }
         }
 
         public void TriangulateVoxels()
@@ -148,15 +190,85 @@ namespace Procedural.Marching.Squares
                 for (int x = 0; x < cells; x++, voxelIndex++)
                 {
                     TriangulateVoxel(
-                        voxels[voxelIndex],
-                        voxels[voxelIndex + 1],
-                        voxels[voxelIndex + chunkResolution],
-                        voxels[voxelIndex + chunkResolution + 1],
+                        voxelsData[voxelIndex],
+                        voxelsData[voxelIndex + 1],
+                        voxelsData[voxelIndex + chunkResolution],
+                        voxelsData[voxelIndex + chunkResolution + 1],
                         noiseGenerator.isoLevel);
                 }
             }
 
             // Set the mesh vertices, uvs and triangles
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+
+            if (useUVMapping)
+            {
+                mesh.SetUVs(0, uvs);
+            }
+
+            mesh.Optimize();
+
+            // Draw the mesh GPU
+            Graphics.DrawMesh(mesh, transform.localToWorldMatrix, voxelMaterial, 0);
+        }
+
+        public void TriangulateVoxelsCompute()
+        {
+            int cells = chunkResolution - 1;
+
+            //Push our prepared data into Buffer
+            voxelDataBuffer.SetData(voxelsData);
+
+            // Compute
+            int marchingKernel = marchingCompute.FindKernel("March");
+
+            // Reset the counter of the buffers
+            voxelDataBuffer.SetCounterValue(0);
+            triangleDataBuffer.SetCounterValue(0);
+
+            marchingCompute.SetInt("cells", cells);
+            marchingCompute.SetFloat("isoLevel", noiseGenerator.isoLevel);
+            marchingCompute.SetBool("useInterpolation", useInterpolation);
+            marchingCompute.SetBuffer(marchingKernel, "voxels", voxelDataBuffer);
+            marchingCompute.SetBuffer(marchingKernel, "triangles", triangleDataBuffer);
+
+            marchingCompute.Dispatch(marchingKernel, (cells * cells) / 16, 1, 1);
+
+            // Get number of triangles in the triangle buffer
+            ComputeBuffer.CopyCount(triangleDataBuffer, triCountBuffer, 0);
+            int[] triCountArray = { 0 };
+            triCountBuffer.GetData(triCountArray);
+            int numTris = triCountArray[0];
+
+            // Get the triangles
+            Triangle[] tris = new Triangle[numTris];
+            triangleDataBuffer.GetData(tris);
+
+            // Clear all the mesh
+            mesh.Clear();
+            uvs.Clear();
+            vertices.Clear();
+            triangles.Clear();
+
+            for(int i = 0, t = 0; i < numTris; i++, t = i * 3)
+            {
+                vertices.Add(tris[i].a);
+                vertices.Add(tris[i].b);
+                vertices.Add(tris[i].c);
+
+                triangles.Add(t);
+                triangles.Add(t + 1);
+                triangles.Add(t + 2);
+
+                if (useUVMapping)
+                {
+                    uvs.Add(Vector2.right * tris[i].a.x + Vector2.up * tris[i].a.y);
+                    uvs.Add(Vector2.right * tris[i].b.x + Vector2.up * tris[i].b.y);
+                    uvs.Add(Vector2.right * tris[i].c.x + Vector2.up * tris[i].c.y);
+                }
+            }
+
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
 
@@ -171,25 +283,25 @@ namespace Procedural.Marching.Squares
 
         #region Triangulation functions
 
-        public void TriangulateVoxel(VoxelSquare a, VoxelSquare b, 
-                                     VoxelSquare c, VoxelSquare d, float isoLevel)
+        public void TriangulateVoxel(VoxelData a, VoxelData b,
+                                     VoxelData c, VoxelData d, float isoLevel)
         {
             // Triangulation table
             int cellType = 0; // Cell type may vary from 0 to 15
 
-            if (a.isUsedByMarching)
+            if (a.value > isoLevel)
             {
                 cellType |= 1;
             }
-            if (b.isUsedByMarching)
+            if (b.value > isoLevel)
             {
                 cellType |= 2;
             }
-            if (c.isUsedByMarching)
+            if (c.value > isoLevel)
             {
                 cellType |= 4;
             }
-            if (d.isUsedByMarching)
+            if (d.value > isoLevel)
             {
                 cellType |= 8;
             }

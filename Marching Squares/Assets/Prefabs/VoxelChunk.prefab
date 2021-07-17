@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   voxelQuadPrefab: {fileID: 420039295479511553, guid: 212cd9558b5e1f747a3bb4985ae63068, type: 3}
+  marchingCompute: {fileID: 7200000, guid: e8a50131992eacf4e9f7fbcf33c7bddf, type: 3}
   voxelMaterial: {fileID: 2100000, guid: d668286b01bb08349bb4fd962b100ba3, type: 2}
   chunkX: 0
   chunkY: 0
@@ -52,3 +53,4 @@ MonoBehaviour:
   voxelScale: 0
   useInterpolation: 0
   useUVMapping: 0
+  mesh: {fileID: 0}

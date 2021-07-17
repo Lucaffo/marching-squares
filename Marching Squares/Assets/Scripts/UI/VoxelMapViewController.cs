@@ -19,6 +19,7 @@ namespace Procedural.Marching.Squares.UI
         public Toggle scrollWithTimeToggle;
         public Toggle useInterpolationToggle;
         public Toggle useUvMappingToggle;
+        public Toggle useComputeShaderToggle;
 
         public Text mapResolutionText;
         public Text chunkResolutionText;
@@ -58,6 +59,7 @@ namespace Procedural.Marching.Squares.UI
             scrollSpeedSlider.value = noiseOffsetMover.scrollSpeed;
             scrollWithTimeToggle.isOn = noiseOffsetMover.timeScroll;
             useUvMappingToggle.isOn = map.useUvMapping;
+            useComputeShaderToggle.isOn = map.useComputeShader;
             #endregion
 
             #region Setup Noise Settings UI values
@@ -94,6 +96,7 @@ namespace Procedural.Marching.Squares.UI
             map.useInterpolation = useInterpolationToggle.isOn;
             noiseOffsetMover.timeScroll = scrollWithTimeToggle.isOn;
             map.useUvMapping = useUvMappingToggle.isOn;
+            map.useComputeShader = useComputeShaderToggle.isOn;
 
             #endregion
 

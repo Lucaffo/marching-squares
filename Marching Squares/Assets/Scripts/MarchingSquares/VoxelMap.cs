@@ -13,6 +13,7 @@ namespace Procedural.Marching.Squares
         public int mapScale = 2;
         public bool useInterpolation = false;
         public bool useUvMapping = false;
+        public bool useComputeShader = false;
 
         [Header("Chunk settings")]
         public int chunkResolution = 2;
@@ -61,6 +62,7 @@ namespace Procedural.Marching.Squares
                 chunk.voxelScale = voxelScale;
                 chunk.useInterpolation = useInterpolation;
                 chunk.useUVMapping = useUvMapping;
+                chunk.useComputeShader = useComputeShader;
                 chunk.Initialize(voxelResolution, chunkSize);
 
                 // First chunk case
