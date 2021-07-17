@@ -1,9 +1,16 @@
 #pragma kernel March
 
-struct Triangle {
+struct Triangle 
+{
+    // Vertices
     float2 vertexA;
     float2 vertexB;
     float2 vertexC;
+
+    // UVS
+    float2 aUV;
+    float2 bUV;
+    float2 cUV;
 };
 
 struct VoxelData
@@ -39,6 +46,10 @@ void AddTriangle(float2 a, float2 b, float2 c)
     tri.vertexA = a;
     tri.vertexB = b;
     tri.vertexC = c;
+
+    tri.aUV = float2(1, 0) * a.x + float2(0, 1) * a.y;
+    tri.bUV = float2(1, 0) * b.x + float2(0, 1) * b.y;
+    tri.cUV = float2(1, 0) * c.x + float2(0, 1) * c.y;
 
     triangles.Append(tri);
 }

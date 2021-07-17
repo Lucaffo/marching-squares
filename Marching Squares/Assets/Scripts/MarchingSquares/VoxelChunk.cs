@@ -8,9 +8,15 @@ namespace Procedural.Marching.Squares
 {
     struct Triangle
     {
+        // Vertices
         public Vector2 a;
         public Vector2 b;
         public Vector2 c;
+
+        // UVS
+        public Vector2 aUV;
+        public Vector2 bUV;
+        public Vector2 cUV;
     }
 
     // Select only parent
@@ -121,7 +127,7 @@ namespace Procedural.Marching.Squares
             int voxelDataStride = Marshal.SizeOf(typeof(Vector2)) + Marshal.SizeOf(typeof(float));
             voxelDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, voxelDataStride);
 
-            int triangleDataStride = Marshal.SizeOf(typeof(Vector2)) * 3;
+            int triangleDataStride = Marshal.SizeOf(typeof(Vector2)) * 6;
             triangleDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution * 5, triangleDataStride, ComputeBufferType.Append);
 
             triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
@@ -263,9 +269,9 @@ namespace Procedural.Marching.Squares
 
                 if (useUVMapping)
                 {
-                    uvs.Add(Vector2.right * tris[i].a.x + Vector2.up * tris[i].a.y);
-                    uvs.Add(Vector2.right * tris[i].b.x + Vector2.up * tris[i].b.y);
-                    uvs.Add(Vector2.right * tris[i].c.x + Vector2.up * tris[i].c.y);
+                    uvs.Add(tris[i].aUV);
+                    uvs.Add(tris[i].bUV);
+                    uvs.Add(tris[i].cUV);
                 }
             }
 
