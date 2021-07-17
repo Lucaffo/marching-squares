@@ -1,10 +1,38 @@
+<div align="center">
+    <img src ="https://user-images.githubusercontent.com/55745404/126045206-d81a2880-113b-4441-a698-4ec3987108a3.png" width="300">
+    <h1 align="center">Unity Marching Square</h1>
+    <a href="https://github.com/Lucaffo/Marching-Squares/stargazers">
+         <img src="https://img.shields.io/github/stars/Lucaffo/Marching-Squares" alt="Stars Badge"></img>
+    </a>
+    <img alt="Github Contributors" src="https://img.shields.io/github/contributors/Lucaffo/github-wallpapers"></img>
+</div>
+<div align="center">
+    <h4> A marching square algorithm showcaser that use compute shaders.</h4>
+</div>
+
+
 Marching Squares Algorithm
 ===
-
 This project is realized for a paper research for the procedural content generation and aim to show how the marching squares algorithm works with an interactive software.
 
+![image](https://user-images.githubusercontent.com/55745404/126045792-85631322-e591-4613-8481-8b8cbf157804.png)
 
-![image](https://user-images.githubusercontent.com/55745404/125189845-7a229780-e23a-11eb-80bd-14349c9d7e25.png)
+## Features
++ Multichunk up to 4x4.
++ Option to use a compute shader.
++ Changing the single chunk resoultion (1x1 to 500x500)
++ Moving and change the noise settings from UI and the noise offset using the keyboard.
++ Enabling/Disabling vertex interpolation.
++ Enabling/Disabling uv mapping.
++ Choose between the use of the compute shader or the CPU.
++ Multiple default noise presets
++ Grid feature to monitoring visually the vertices.
+
+## Notes
+(!) Grid feature it's expansive, use it with low chunkresolutions.
+
+## Commands
+Use WASD and DPAD to move the noise offset.
 
 ## Resources
 - [Computer Graphics Algorithms](http://www.faqs.org/faqs/graphics/algorithms-faq/)
