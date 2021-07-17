@@ -7,10 +7,9 @@
     <img alt="Github Contributors" src="https://img.shields.io/github/contributors/Lucaffo/github-wallpapers"></img>
 </div>
 <div align="center">
-    <h4> A marching square algorithm showcaser that use compute shaders.</h4>
+    <h4> A marching square algorithm showcaser that use compute shaders.</h4> 
+    <img src="https://user-images.githubusercontent.com/55745404/126045929-2b865980-2072-4ea0-b8f6-4d0d9077f0c6.png"></img>
 </div>
-
-![image](https://user-images.githubusercontent.com/55745404/126045929-2b865980-2072-4ea0-b8f6-4d0d9077f0c6.png)
 
 
 Marching Squares Algorithm
