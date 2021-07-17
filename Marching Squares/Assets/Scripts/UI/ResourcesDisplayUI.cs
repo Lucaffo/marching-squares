@@ -44,6 +44,11 @@ namespace Procedural.Marching.Squares.UI
             {
 				monitoringCoroutine = StartCoroutine(MonitoringCoroutine());
             }
+            else
+            {
+				StopResourceMonitoring();
+				StartResourceMonitoring();
+            }
         }
 
 		public void StopResourceMonitoring()
@@ -51,7 +56,8 @@ namespace Procedural.Marching.Squares.UI
 			if(monitoringCoroutine != null)
             {
 				StopCoroutine(monitoringCoroutine);
-            }
+				monitoringCoroutine = null;
+			}
         }
 
 		private IEnumerator MonitoringCoroutine()

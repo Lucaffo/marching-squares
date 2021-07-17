@@ -5058,7 +5058,7 @@ MonoBehaviour:
   fpsCounterText: {fileID: 1600039284}
   totalVerticesText: {fileID: 700297058}
   totalTrianglesText: {fileID: 1338468895}
-  updateTimeSeconds: 1
+  updateTimeSeconds: 0.25
 --- !u!114 &1426537062
 MonoBehaviour:
   m_ObjectHideFlags: 0
