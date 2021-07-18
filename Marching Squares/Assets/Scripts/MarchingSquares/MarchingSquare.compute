@@ -31,15 +31,6 @@ float3 lerp(float3 a, float3 b, float w)
   return a + w*(b-a);
 }
 
-float2 interpolateVerts(VoxelData v1, VoxelData v2) {
-    float t = (isoLevel - v1.isoValue) / (v2.isoValue - v1.isoValue);
-    return v1.position + t * (v2.position-v1.position);
-}
-
-int indexFromCoord(int x, int y) {
-    return y * cells + x;
-}
-
 void AddTriangle(float2 a, float2 b, float2 c)
 {
     Triangle tri;
@@ -67,9 +58,14 @@ void AddPentagon(float2 a, float2 b, float2 c, float2 d, float2 e)
     AddTriangle(a, d, e);
 }
 
-[numthreads(16, 1, 1)]
+[numthreads(128, 1, 1)]
 void March (int3 id : SV_DispatchThreadID)
 {   
+    if (id.x > cells * cells + cells - 2)
+    {
+        return;
+    }
+
     uint index = id.x;
 
     // Points of the square
@@ -93,8 +89,6 @@ void March (int3 id : SV_DispatchThreadID)
     if (b.isoValue > isoLevel) cellType |= 2;
     if (c.isoValue > isoLevel) cellType |= 4;
     if (d.isoValue > isoLevel) cellType |= 8;
-
-    if(cellType == 0) return;
 
     // Instead of top you lerp between A and B to get the position.
     // Instead of right you lerp between B and C, etc.

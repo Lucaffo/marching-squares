@@ -27,7 +27,8 @@ namespace Procedural.Marching.Squares
         // Chunks array
         public List<VoxelChunk> chunks;
 
-        private float chunkSize, voxelSize;
+        private float chunkSize;
+        private float voxelSize;
 
         private void OnApplicationQuit()
         {
@@ -36,6 +37,8 @@ namespace Procedural.Marching.Squares
 
         private void Awake()
         {
+            chunkSize = mapScale / chunkResolution;
+            
             Initialize();
         }
 
@@ -43,7 +46,7 @@ namespace Procedural.Marching.Squares
         public void Refresh()
         {
             float chunkSize = mapScale / chunkResolution;
-            float voxelSize = chunkSize / voxelResolution;
+            voxelSize = chunkSize / voxelResolution;
 
             if (chunkSize != this.chunkSize)
             {
@@ -64,32 +67,6 @@ namespace Procedural.Marching.Squares
                 chunk.useUVMapping = useUvMapping;
                 chunk.useComputeShader = useComputeShader;
                 chunk.Initialize(voxelResolution, chunkSize);
-
-                // First chunk case
-                if (chunk.chunkX == 0 && chunk.chunkY == 0)
-                {
-                    chunk.transform.localPosition = Vector3.zero;
-                    continue;
-                }
-
-                // Other chunk cases
-                if (chunk.chunkX == chunk.chunkY)
-                {
-                    // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
-                    continue;
-                }
-
-                if (chunk.chunkX > chunk.chunkY)
-                {
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
-                    continue;
-                }
-
-                if (chunk.chunkX < chunk.chunkY)
-                {
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize - voxelSize)) + Vector3.up * (chunk.chunkY * (chunkSize - voxelSize));
-                }
             }
         }
 
@@ -109,6 +86,32 @@ namespace Procedural.Marching.Squares
 
             chunk.Initialize(voxelResolution, chunkSize);
             chunks.Add(chunk);
+
+            // First chunk case
+            if (chunk.chunkX == 0 && chunk.chunkY == 0)
+            {
+                chunk.transform.position = Vector3.zero;
+                return;
+            }
+
+            // Other chunk cases
+            if (chunk.chunkX == chunk.chunkY)
+            {
+                // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
+                chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
+                return;
+            }
+
+            if (chunk.chunkX > chunk.chunkY)
+            {
+                chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
+                return;
+            }
+
+            if (chunk.chunkX < chunk.chunkY)
+            {
+                chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
+            }
         }
 
         public void AddNoiseOffset(Vector3 offset)

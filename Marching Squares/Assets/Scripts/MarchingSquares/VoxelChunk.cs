@@ -25,11 +25,14 @@ namespace Procedural.Marching.Squares
     {
         [Header("Single Voxel settings")]
         public VoxelSquare voxelQuadPrefab;
+        private const int threadPerGroups = 64;
 
         public ComputeShader marchingCompute;
         private ComputeBuffer voxelDataBuffer;
         private ComputeBuffer triangleDataBuffer;
         private ComputeBuffer triCountBuffer;
+        private int cells;
+        private int threadGroups;
 
         // Materials
         public Material voxelMaterial;
@@ -78,20 +81,28 @@ namespace Procedural.Marching.Squares
             Destroy(mesh);
 
             // Dispose the compute buffers
-            voxelDataBuffer.Dispose();
-            triangleDataBuffer.Dispose();
-            triCountBuffer.Dispose();
+            voxelDataBuffer?.Dispose();
+            triangleDataBuffer?.Dispose();
+            triCountBuffer?.Dispose();
+
+            voxelDataBuffer = null;
+            triangleDataBuffer = null;
+            triCountBuffer = null;
         }
 
         public void Initialize(int chunkRes, float chunkSize)
         {
-            if(chunkRes != this.chunkResolution)
+            if (chunkRes != this.chunkResolution)
             {
                 gameObject.name = "Chunk(" + chunkX + "," + chunkY + ")";
 
                 this.chunkResolution = chunkRes;
-                
-                if(voxels != null)
+                this.cells = chunkRes - 1;
+
+                threadGroups = Mathf.CeilToInt(chunkResolution * chunkResolution / (float)threadPerGroups);
+
+                // Create the array of voxels
+                if (voxels != null)
                 {
                     for (int i = 0; i < voxels.Length; i++)
                     {
@@ -99,12 +110,11 @@ namespace Procedural.Marching.Squares
                     }
                 }
 
-                // Create the array of voxels
-                voxels = new VoxelSquare[chunkResolution * chunkResolution];
+                voxels = new VoxelSquare[chunkResolution * chunkResolution]; 
                 voxelsData = new VoxelData[chunkResolution * chunkResolution];
 
                 // Greater the resolution, less is the size of the voxel
-                this.voxelSize = chunkSize / chunkResolution;
+                voxelSize = chunkSize / cells;
 
                 int voxelIndex = 0;
 
@@ -118,34 +128,39 @@ namespace Procedural.Marching.Squares
                 }
             }
 
-            triangleDataBuffer?.Release();
-            voxelDataBuffer?.Release();
-            triCountBuffer?.Release();
+            if(useComputeShader)
+            {
+                triangleDataBuffer?.Release();
+                voxelDataBuffer?.Release();
+                triCountBuffer?.Release();
 
-            // Calculate the compute buffer again
-            int voxelDataStride = Marshal.SizeOf(typeof(Vector2)) + Marshal.SizeOf(typeof(float));
-            voxelDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, voxelDataStride);
+                // Calculate the compute buffer again
+                int voxelDataStride = Marshal.SizeOf(typeof(Vector2)) + Marshal.SizeOf(typeof(float));
+                voxelDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution, voxelDataStride);
 
-            int triangleDataStride = Marshal.SizeOf(typeof(Vector2)) * 6;
-            triangleDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution * 5, triangleDataStride, ComputeBufferType.Append);
+                int triangleDataStride = Marshal.SizeOf(typeof(Vector2)) * 6;
+                triangleDataBuffer = new ComputeBuffer(chunkResolution * chunkResolution * 5, triangleDataStride, ComputeBufferType.Append);
 
-            triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+                triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+            }
 
             Refresh();
         }
 
         private void CreateVoxel(int voxelIndex, float x, float y)
         {
-            VoxelSquare voxel = Instantiate(voxelQuadPrefab);
-            voxel.transform.parent = transform;
-            voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
-            voxel.transform.localPosition = new Vector3((x) * voxelSize, (y) * voxelSize);
+            // Create the array of voxels
+            VoxelSquare voxel = Instantiate(voxelQuadPrefab, transform);
+            voxel.transform.localPosition = Vector3.right * ((x * voxelSize)) + Vector3.up * ((y * voxelSize));
 
-            // Marching evaluation
+            voxel.transform.localScale = Vector3.one * voxelSize * voxelScale;
+
+            // Marching evaluation for the grid
             voxel.isUsedByMarching = voxelsData[voxelIndex].value > noiseGenerator.isoLevel;
 
             // Set the voxel to the voxel
             voxels[voxelIndex] = voxel;
+
             voxelsData[voxelIndex].value = noiseGenerator.Generate(x, y);
             voxelsData[voxelIndex].position = new Vector2(x * voxelSize, y * voxelSize);
         }
@@ -157,10 +172,13 @@ namespace Procedural.Marching.Squares
 
             for(int i = 0; i < voxelsData.Length; i++)
             {
-                voxelsData[i].value = noiseGenerator.Generate(voxelsData[i].position.x + pos.x, voxelsData[i].position.y + pos.y);
-                
-                // Optimize if the grid is not showed
-                if(showVoxelPointGrid)
+                voxelsData[i].value = noiseGenerator.Generate(voxelsData[i].position.x + pos.x, voxelsData[i].position.y + pos.y);    
+            }
+
+            // Optimize if the grid is not showed
+            if (showVoxelPointGrid)
+            {
+                for (int i = 0; i < voxels.Length; i++)
                 {
                     voxels[i].transform.localScale = Vector3.one * voxelSize * voxelScale;
                     voxels[i].isUsedByMarching = voxelsData[i].value > noiseGenerator.isoLevel;
@@ -203,7 +221,6 @@ namespace Procedural.Marching.Squares
                 }
             }
 
-
             mesh.MarkDynamic();
 
             // Set the mesh vertices, uvs and triangles
@@ -221,8 +238,6 @@ namespace Procedural.Marching.Squares
 
         public void TriangulateVoxelsCompute()
         {
-            int cells = chunkResolution - 1;
-
             //Push our prepared data into Buffer
             voxelDataBuffer.SetData(voxelsData);
 
@@ -239,7 +254,7 @@ namespace Procedural.Marching.Squares
             marchingCompute.SetBuffer(marchingKernel, "voxels", voxelDataBuffer);
             marchingCompute.SetBuffer(marchingKernel, "triangles", triangleDataBuffer);
 
-            marchingCompute.Dispatch(marchingKernel, (cells * cells) / 16, 1, 1);
+            marchingCompute.Dispatch(marchingKernel, threadGroups, 1, 1);
 
             // Get number of triangles in the triangle buffer
             ComputeBuffer.CopyCount(triangleDataBuffer, triCountBuffer, 0);
@@ -274,7 +289,6 @@ namespace Procedural.Marching.Squares
                     uvs.Add(tris[i].cUV);
                 }
             }
-
 
             mesh.MarkDynamic();
 
@@ -313,11 +327,6 @@ namespace Procedural.Marching.Squares
             if (d.value > isoLevel)
             {
                 cellType |= 8;
-            }
-
-            if(cellType == 0)
-            {
-                return;
             }
 
             // Instead of top you lerp between A and B to get the position.
