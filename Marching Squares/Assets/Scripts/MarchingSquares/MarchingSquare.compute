@@ -26,7 +26,7 @@ int cells;
 float isoLevel;
 bool useInterpolation;
 
-float3 lerp(float3 a, float3 b, float w)
+float2 lerp(float2 a, float2 b, float w)
 {
   return a + w*(b-a);
 }
@@ -68,19 +68,11 @@ void March (int3 id : SV_DispatchThreadID)
 
     uint index = id.x;
 
-    // Points of the square
-    VoxelData squareCorners[4] = {
-        voxels[index],
-        voxels[index + 1],
-        voxels[index + cells + 1],
-        voxels[index + cells + 2]
-    };
-
     // Cell corners
-    VoxelData a = squareCorners[0];
-    VoxelData b = squareCorners[1];
-    VoxelData c = squareCorners[2];
-    VoxelData d = squareCorners[3];
+    VoxelData a = voxels[index];
+    VoxelData b = voxels[index + 1];
+    VoxelData c = voxels[index + cells + 1];
+    VoxelData d = voxels[index + cells + 2];
 
     // Calculate unique index for each cube configuration.
     // There are 16 possible values
