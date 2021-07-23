@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using NoiseGenerator;
-using Procedural.Marching.Squares;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace MarchingSquares
 {
@@ -27,10 +22,10 @@ namespace MarchingSquares
         [HideInInspector] public bool useUVMapping;
         [HideInInspector] public bool useComputeShader;
         
-        [SerializeField] private VoxelData[] voxelData;
+        private VoxelData[] _voxelData;
 
-        private MarchingGPU marchingGPU;
-        private MarchingCPU marchingCPU;
+        private MarchingGPU _marchingGPU;
+        private MarchingCPU _marchingCPU;
 
         private int _chunkResolution;
         private float _chunkSize;
@@ -39,14 +34,14 @@ namespace MarchingSquares
 
         private void Awake()
         {
-            marchingCPU = new MarchingCPU();
-            marchingGPU = new MarchingGPU(marchingCompute);
+            _marchingCPU = new MarchingCPU();
+            _marchingGPU = new MarchingGPU(marchingCompute);
         }
 
         private void OnDestroy()
         {
-            marchingCPU.Destroy();
-            marchingGPU.Destroy();
+            _marchingCPU.Destroy();
+            _marchingGPU.Destroy();
         }
 
         public void Initialize(float chunkSize, int chunkResolution)
@@ -58,7 +53,7 @@ namespace MarchingSquares
             _voxelSize = chunkSize / (chunkResolution - 1);
 
             // Create the voxels arrays
-            voxelData = new VoxelData[chunkResolution * chunkResolution];
+            _voxelData = new VoxelData[chunkResolution * chunkResolution];
 
             // Caching the transform position
             _chunkPosition = transform.localPosition;
@@ -70,14 +65,14 @@ namespace MarchingSquares
                 for (int x = 0; x < chunkResolution; x++)
                 {
                     // Set the voxel position
-                    voxelData[voxelIndex].position = Vector3.right * ( x * _voxelSize ) + Vector3.up * ( y * _voxelSize );
+                    _voxelData[voxelIndex].position = Vector3.right * ( x * _voxelSize ) + Vector3.up * ( y * _voxelSize );
                     voxelIndex++;
                 }
             }
             
             // Initialize the current used marching method
-            marchingGPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
-            marchingCPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
+            _marchingGPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
+            _marchingCPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
         }
 
         public void Refresh(int chunkRes)
@@ -87,32 +82,27 @@ namespace MarchingSquares
                 Initialize(_chunkSize, chunkRes);
             }
 
-            for(int i = 0; i < voxelData.Length; i++)
+            for(int i = 0; i < _voxelData.Length; i++)
             {
-                voxelData[i].value = noiseGenerator.Generate(voxelData[i].position.x + _chunkPosition.x, voxelData[i].position.y + _chunkPosition.y);    
-            }
-
-            if (showVoxelPointGrid)
-            {
-                // Draw the square on grid
+                _voxelData[i].value = noiseGenerator.Generate(_voxelData[i].position.x + _chunkPosition.x, _voxelData[i].position.y + _chunkPosition.y);    
             }
             
             // Refresh the triangulation
             if(useComputeShader)
             {
-                marchingGPU.Refresh();
-                marchingGPU.Triangulate(voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
+                _marchingGPU.Refresh();
+                _marchingGPU.Triangulate(_voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
             }
             else
             {
-                marchingCPU.Triangulate(voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
+                _marchingCPU.Triangulate(_voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
             }
         }
 
         public Mesh GetMesh()
         {
             // Return the mesh used by the current used method
-            return useComputeShader ? marchingGPU.mesh : marchingCPU.mesh;
+            return useComputeShader ? _marchingGPU.mesh : _marchingCPU.mesh;
         }
     }
 }

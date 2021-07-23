@@ -12,7 +12,7 @@ namespace MarchingSquares
         private List<int> triangles;
         
         // Parameters and settings
-        private bool UVMapping;
+        private bool uvMapping;
         private bool interpolation;
         private int resolution;
         
@@ -45,7 +45,7 @@ namespace MarchingSquares
         public override void Triangulate(VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
         {
             // Setup settings
-            UVMapping = useUVMapping;
+            uvMapping = useUVMapping;
             interpolation = useInterpolation;
             
             // Clear all
@@ -73,6 +73,11 @@ namespace MarchingSquares
             // Set the mesh vertices, uvs and triangles
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
+
+            if (useUVMapping)
+            {
+                mesh.SetUVs(0, uvs);
+            }
 
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, position, Quaternion.identity, material, 0);
@@ -232,7 +237,7 @@ namespace MarchingSquares
             vertices.Add(c);
 
             // Add uvs
-            if (UVMapping)
+            if (uvMapping)
             {
                 uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
                 uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
@@ -252,7 +257,7 @@ namespace MarchingSquares
             vertices.Add(c);
             vertices.Add(d);
 
-            if (UVMapping)
+            if (uvMapping)
             {
                 uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
                 uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
@@ -278,7 +283,7 @@ namespace MarchingSquares
             vertices.Add(d);
             vertices.Add(e);
 
-            if (UVMapping)
+            if (uvMapping)
             {
                 uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
                 uvs.Add(Vector2.right * b.x + Vector2.up * b.y);

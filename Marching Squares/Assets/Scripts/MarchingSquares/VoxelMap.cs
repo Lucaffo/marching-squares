@@ -28,7 +28,6 @@ namespace MarchingSquares
         public List<VoxelChunk> chunks;
 
         private float chunkSize;
-        // private float voxelSize;
 
         private void OnApplicationQuit()
         {
@@ -140,11 +139,6 @@ namespace MarchingSquares
         {
             noiseGenerator.AddOffset((Vector2) offset);
             Refresh();
-        }
-
-        public void SetNoiseOffset(Vector2 offset)
-        {
-            noiseGenerator.SetOffset(offset);
         }
     }
 }
