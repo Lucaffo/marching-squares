@@ -35,6 +35,7 @@ namespace MarchingSquares
         private int _chunkResolution;
         private float _chunkSize;
         private float _voxelSize;
+        private Vector3 _chunkPosition;
 
         private void Awake()
         {
@@ -60,7 +61,7 @@ namespace MarchingSquares
             voxelData = new VoxelData[chunkResolution * chunkResolution];
 
             // Caching the transform position
-            Vector3 position = transform.localPosition;
+            _chunkPosition = transform.localPosition;
 
             // Create all the voxels
             int voxelIndex = 0;
@@ -75,8 +76,8 @@ namespace MarchingSquares
             }
             
             // Initialize the current used marching method
-            marchingGPU.Initialize(voxelMaterial, position, chunkResolution);
-            marchingCPU.Initialize(voxelMaterial, position, chunkResolution);
+            marchingGPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
+            marchingCPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
         }
 
         public void Refresh(int chunkRes)
@@ -85,13 +86,10 @@ namespace MarchingSquares
             {
                 Initialize(_chunkSize, chunkRes);
             }
-            
-            // Caching the transform position
-            Vector3 pos = transform.position;
 
             for(int i = 0; i < voxelData.Length; i++)
             {
-                voxelData[i].value = noiseGenerator.Generate(voxelData[i].position.x + pos.x, voxelData[i].position.y + pos.y);    
+                voxelData[i].value = noiseGenerator.Generate(voxelData[i].position.x + _chunkPosition.x, voxelData[i].position.y + _chunkPosition.y);    
             }
 
             if (showVoxelPointGrid)
