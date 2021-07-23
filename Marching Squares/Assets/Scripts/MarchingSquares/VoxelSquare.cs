@@ -1,12 +1,12 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Procedural.Marching.Squares
+namespace MarchingSquares
 {
     [Serializable]
     public struct VoxelData
     {
-        public Vector2 position;
+        public Vector3 position;
         public float value;
     }
 

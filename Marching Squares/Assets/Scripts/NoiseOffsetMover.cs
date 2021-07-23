@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MarchingSquares;
+using UnityEngine;
 
 namespace Procedural.Marching.Squares.Utils
 {

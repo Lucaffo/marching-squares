@@ -1,3 +1,4 @@
+using MarchingSquares;
 using NoiseGenerator;
 using Procedural.Marching.Squares.Utils;
 
@@ -53,8 +54,8 @@ namespace Procedural.Marching.Squares.UI
         private void SetupView()
         {
             #region Setup Map Settings UI values
-            mapResolutionSlider.value = map.chunkResolution;
-            chunkResolutionSlider.value = map.voxelResolution;
+            mapResolutionSlider.value = map.mapResolution;
+            chunkResolutionSlider.value = map.chunkResolution;
             useInterpolationToggle.isOn = map.useInterpolation;
             scrollSpeedSlider.value = noiseOffsetMover.scrollSpeed;
             scrollWithTimeToggle.isOn = noiseOffsetMover.timeScroll;
@@ -83,13 +84,13 @@ namespace Procedural.Marching.Squares.UI
             #region Update Map Settings - Graphics Components
 
             // Update the value texts
-            mapResolutionText.text = map.chunkResolution.ToString();
-            chunkResolutionText.text = map.voxelResolution.ToString();
+            mapResolutionText.text = map.mapResolution.ToString();
+            chunkResolutionText.text = map.chunkResolution.ToString();
             scrollSpeedText.text = noiseOffsetMover.scrollSpeed.ToString();
 
             // Apply the slider values
-            map.chunkResolution = (int) mapResolutionSlider.value;
-            map.voxelResolution = (int) chunkResolutionSlider.value;
+            map.mapResolution = (int) mapResolutionSlider.value;
+            map.chunkResolution = (int) chunkResolutionSlider.value;
             noiseOffsetMover.scrollSpeed = scrollSpeedSlider.value;
 
             // Apply the toggle values

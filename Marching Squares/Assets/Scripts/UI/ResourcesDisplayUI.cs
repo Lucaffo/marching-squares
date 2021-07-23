@@ -6,6 +6,7 @@ using ThreadPriority = System.Threading.ThreadPriority;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using MarchingSquares;
 
 namespace Procedural.Marching.Squares.UI
 {
@@ -61,7 +62,7 @@ namespace Procedural.Marching.Squares.UI
         }
 
 		private IEnumerator MonitoringCoroutine()
-        {
+		{
 			while(true)
 			{
 				totalTriangles = 0;
@@ -69,8 +70,9 @@ namespace Procedural.Marching.Squares.UI
 
 				for (int i = 0; i < map.chunks.Count; i++)
 				{
-					totalVertices += map.chunks[i].mesh.vertexCount;
-					totalTriangles += map.chunks[i].mesh.triangles.Length;
+					Mesh chunkMesh = map.chunks[i].GetMesh();
+					totalVertices += chunkMesh.vertexCount;
+					totalTriangles += chunkMesh.triangles.Length;
 				}
 
 				fps = (1F / Time.unscaledDeltaTime);
@@ -78,7 +80,6 @@ namespace Procedural.Marching.Squares.UI
 				fpsCounterText.text = fps.ToString("0.0") + " FPS";
 				totalVerticesText.text = totalVertices.ToString() + " vertices";
 				totalTrianglesText.text = totalTriangles.ToString() + " triangles";
-
 
 				yield return new WaitForSeconds(updateTimeSeconds);
             }

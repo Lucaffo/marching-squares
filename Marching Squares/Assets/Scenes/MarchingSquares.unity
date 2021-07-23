@@ -6335,9 +6335,9 @@ MonoBehaviour:
   useInterpolation: 1
   useUvMapping: 1
   useComputeShader: 0
-  chunkResolution: 1
+  mapResolution: 2
   chunkPrefab: {fileID: 8477545550259858425, guid: eb27a3dc887ff9b4eb0636ae0e53e07d, type: 3}
-  voxelResolution: 100
+  chunkResolution: 10
   showVoxelPointGrid: 0
   voxelScale: 0.1
   chunks: []
