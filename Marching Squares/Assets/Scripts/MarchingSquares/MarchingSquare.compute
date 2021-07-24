@@ -21,79 +21,79 @@ float3 lerp(float3 a, float3 b, float w)
     return a + w*(b-a);
 }
 
-void AddTriangle(int i, float3 a, float3 b, float3 c)
+void AddTriangle(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c)
 {
     // Set the triangle vertices
-    vertices[i] = a;
-    vertices[i + 1] = b;
-    vertices[i + 2] = c;
+    vertices[verticesIndex] = a;
+    vertices[verticesIndex + 1] = b;
+    vertices[verticesIndex + 2] = c;
 
     // Set the triangles indexes
-    triangles[i] = i;
-    triangles[i + 1] = i + 1; 
-    triangles[i + 2] = i + 2;
+    triangles[triangleIndex] = verticesIndex;
+    triangles[triangleIndex + 1] = verticesIndex + 1; 
+    triangles[triangleIndex + 2] = verticesIndex + 2;
 }
 
-void AddQuad(int i, float3 a, float3 b, float3 c, float3 d)
+void AddQuad(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d)
 {
     // Set the triangle vertices
-    vertices[i] = a;
-    vertices[i + 1] = b;
-    vertices[i + 2] = c;
-    vertices[i + 3] = d;
+    vertices[verticesIndex] = a;
+    vertices[verticesIndex + 1] = b;
+    vertices[verticesIndex + 2] = c;
+    vertices[verticesIndex + 3] = d;
 
     // Set the triangles indexes
-    triangles[i] = i;
-    triangles[i + 1] = i + 1; 
-    triangles[i + 2] = i + 2;
+    triangles[triangleIndex] = verticesIndex;
+    triangles[triangleIndex + 1] = verticesIndex + 1; 
+    triangles[triangleIndex + 2] = verticesIndex + 2;
 
-    triangles[i + 3] = i;
-    triangles[i + 4] = i + 2; 
-    triangles[i + 5] = i + 3;
+    triangles[triangleIndex + 3] = verticesIndex;
+    triangles[triangleIndex + 4] = verticesIndex + 2; 
+    triangles[triangleIndex + 5] = verticesIndex + 3;
 }
 
-void AddPentagon(int i, float3 a, float3 b, float3 c, float3 d, float3 e)
+void AddPentagon(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d, float3 e)
 {
     // Set the triangle vertices
-    vertices[i] = a;
-    vertices[i + 1] = b;
-    vertices[i + 2] = c;
-    vertices[i + 3] = d;
-    vertices[i + 4] = e;
+    vertices[verticesIndex] = a;
+    vertices[verticesIndex + 1] = b;
+    vertices[verticesIndex + 2] = c;
+    vertices[verticesIndex + 3] = d;
+    vertices[verticesIndex + 4] = e;
 
     // Set the triangles indexes
-    triangles[i] = i;
-    triangles[i + 1] = i + 1; 
-    triangles[i + 2] = i + 2;
+    triangles[triangleIndex] = verticesIndex;
+    triangles[triangleIndex + 1] = verticesIndex + 1; 
+    triangles[triangleIndex + 2] = verticesIndex + 2;
 
-    triangles[i + 3] = i;
-    triangles[i + 4] = i + 2; 
-    triangles[i + 5] = i + 3;
+    triangles[triangleIndex + 3] = verticesIndex;
+    triangles[triangleIndex + 4] = verticesIndex + 2; 
+    triangles[triangleIndex + 5] = verticesIndex + 3;
 
-    triangles[i + 6] = i;
-    triangles[i + 7] = i + 3; 
-    triangles[i + 8] = i + 4;
+    triangles[triangleIndex + 6] = verticesIndex;
+    triangles[triangleIndex + 7] = verticesIndex + 3; 
+    triangles[triangleIndex + 8] = verticesIndex + 4;
 }
 
-void AddDoubleTriangles(int i, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
+void AddDoubleTriangles(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
 {
     // Set the triangle vertices
-    vertices[i] = a;
-    vertices[i + 1] = b;
-    vertices[i + 2] = c;
-    vertices[i + 3] = a1;
-    vertices[i + 4] = b1;
-    vertices[i + 5] = c1;
+    vertices[verticesIndex] = a;
+    vertices[verticesIndex + 1] = b;
+    vertices[verticesIndex + 2] = c;
+    vertices[verticesIndex + 3] = a1;
+    vertices[verticesIndex + 4] = b1;
+    vertices[verticesIndex + 5] = c1;
 
     // Set the triangles indexes
-    triangles[i] = i;
-    triangles[i + 1] = i + 1; 
-    triangles[i + 2] = i + 2;
+    triangles[triangleIndex] = verticesIndex;
+    triangles[triangleIndex + 1] = verticesIndex + 1; 
+    triangles[triangleIndex + 2] = verticesIndex + 2;
 
     // Set the triangles indexes
-    triangles[i + 3] = i + 3;
-    triangles[i + 4] = i + 4; 
-    triangles[i + 5] = i + 5;
+    triangles[triangleIndex + 3] = verticesIndex + 3;
+    triangles[triangleIndex + 4] = verticesIndex + 4; 
+    triangles[triangleIndex + 5] = verticesIndex + 5;
 }
 
 [numthreads(128, 1, 1)]
@@ -104,16 +104,17 @@ void March (int3 id : SV_DispatchThreadID)
         return;
     }
 
-    int index = id.x;
+    int voxelIndex = id.x;
 
     // Cell corners
-    VoxelData a = voxels[index];
-    VoxelData b = voxels[index + 1];
-    VoxelData c = voxels[index + cells + 1];
-    VoxelData d = voxels[index + cells + 2];
+    VoxelData a = voxels[voxelIndex];
+    VoxelData b = voxels[voxelIndex + 1];
+    VoxelData c = voxels[voxelIndex + cells + 1];
+    VoxelData d = voxels[voxelIndex + cells + 2];
 
-    // Transform the index into the triangle/vertices index
-    index *= 9;
+    // Transform the index into the triangle index
+    int triangleIndex = voxelIndex * 9;
+    int verticesIndex = voxelIndex * 6;
 
     // Calculate unique index for each cube configuration.
     // There are 16 possible values
@@ -165,49 +166,49 @@ void March (int3 id : SV_DispatchThreadID)
         case 0:
             return;
         case 1:
-            AddTriangle(index, a.position, left, bottom);
+            AddTriangle(triangleIndex, verticesIndex, a.position, left, bottom);
             return;
         case 2:
-            AddTriangle(index, b.position, bottom, right);
+            AddTriangle(triangleIndex, verticesIndex, b.position, bottom, right);
             return;
         case 4:
-            AddTriangle(index, c.position, top, left);
+            AddTriangle(triangleIndex, verticesIndex, c.position, top, left);
             return;
         case 8:
-            AddTriangle(index, d.position, right, top);
+            AddTriangle(triangleIndex, verticesIndex, d.position, right, top);
             return;
         case 3:
-            AddQuad(index, a.position, left, right, b.position);
+            AddQuad(triangleIndex, verticesIndex, a.position, left, right, b.position);
             return;
         case 5:
-            AddQuad(index, a.position, c.position, top, bottom);
+            AddQuad(triangleIndex, verticesIndex, a.position, c.position, top, bottom);
             return;
         case 10:
-            AddQuad(index, bottom, top, d.position, b.position);
+            AddQuad(triangleIndex, verticesIndex, bottom, top, d.position, b.position);
             return;
         case 12:
-            AddQuad(index, left, c.position, d.position, right);
+            AddQuad(triangleIndex, verticesIndex, left, c.position, d.position, right);
             return;
         case 15:
-            AddQuad(index, a.position, c.position, d.position, b.position);
+            AddQuad(triangleIndex, verticesIndex, a.position, c.position, d.position, b.position);
             return;
         case 7:
-            AddPentagon(index, a.position, c.position, top, right, b.position);
+            AddPentagon(triangleIndex, verticesIndex, a.position, c.position, top, right, b.position);
             return;
         case 11:
-            AddPentagon(index, b.position, a.position, left, top, d.position);
+            AddPentagon(triangleIndex, verticesIndex, b.position, a.position, left, top, d.position);
             return;
         case 13:
-            AddPentagon(index, c.position, d.position, right, bottom, a.position);
+            AddPentagon(triangleIndex, verticesIndex, c.position, d.position, right, bottom, a.position);
             return;
         case 14:
-            AddPentagon(index, d.position, b.position, bottom, left, c.position);
+            AddPentagon(triangleIndex, verticesIndex, d.position, b.position, bottom, left, c.position);
             return;
         case 6:
-            AddDoubleTriangles(index, b.position, bottom, right, c.position, top, left);
+            AddDoubleTriangles(triangleIndex, verticesIndex, b.position, bottom, right, c.position, top, left);
             return;
         case 9:
-            AddDoubleTriangles(index,a.position, left, bottom, d.position, right, top);
+            AddDoubleTriangles(triangleIndex, verticesIndex,a.position, left, bottom, d.position, right, top);
             return;
     }
 }

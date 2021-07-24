@@ -3,13 +3,6 @@ using UnityEngine;
 
 namespace MarchingSquares
 {
-    [Serializable]
-    public struct VoxelData
-    {
-        public Vector3 position;
-        public float value;
-    }
-
     public class VoxelSquare : MonoBehaviour
     {
         // Caching the bool check in order to save computation

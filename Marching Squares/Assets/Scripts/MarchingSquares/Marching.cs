@@ -1,7 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace MarchingSquares
 {
+    [Serializable]
+    public struct VoxelData
+    {
+        public Vector3 position;
+        public float value;
+    }
+    
     public abstract class Marching
     {
         public Mesh mesh;
