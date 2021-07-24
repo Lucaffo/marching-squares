@@ -9,12 +9,18 @@ struct VoxelData
 // Append buffers for each data types
 RWStructuredBuffer<float3> vertices;
 RWStructuredBuffer<int> triangles;
+RWStructuredBuffer<float3> uvs;
 
 RWStructuredBuffer<VoxelData> voxels;
 
 int cells;
 float isoLevel;
 bool useInterpolation;
+bool useUVMapping;
+
+// Caching the uvs up and right directions
+float3 up;
+float3 right;
 
 float3 lerp(float3 a, float3 b, float w)
 {
@@ -32,6 +38,13 @@ void AddTriangle(int triangleIndex, int verticesIndex, float3 a, float3 b, float
     triangles[triangleIndex] = verticesIndex;
     triangles[triangleIndex + 1] = verticesIndex + 1; 
     triangles[triangleIndex + 2] = verticesIndex + 2;
+    
+    if(useUVMapping)
+    {
+        uvs[verticesIndex] = up * a.x + right * a.y;
+        uvs[verticesIndex + 1] = up * b.x + right * b.y;
+        uvs[verticesIndex + 2] = up * c.x + right * c.y;
+    }
 }
 
 void AddQuad(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d)
@@ -50,6 +63,14 @@ void AddQuad(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c,
     triangles[triangleIndex + 3] = verticesIndex;
     triangles[triangleIndex + 4] = verticesIndex + 2; 
     triangles[triangleIndex + 5] = verticesIndex + 3;
+
+    if(useUVMapping)
+    {
+        uvs[verticesIndex] = up * a.x + right * a.y;
+        uvs[verticesIndex + 1] = up * b.x + right * b.y;
+        uvs[verticesIndex + 2] = up * c.x + right * c.y;
+        uvs[verticesIndex + 3] = up * d.x + right * d.y;
+    }
 }
 
 void AddPentagon(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d, float3 e)
@@ -73,6 +94,15 @@ void AddPentagon(int triangleIndex, int verticesIndex, float3 a, float3 b, float
     triangles[triangleIndex + 6] = verticesIndex;
     triangles[triangleIndex + 7] = verticesIndex + 3; 
     triangles[triangleIndex + 8] = verticesIndex + 4;
+    
+    if(useUVMapping)
+    {
+        uvs[verticesIndex] = up * a.x + right * a.y;
+        uvs[verticesIndex + 1] = up * b.x + right * b.y;
+        uvs[verticesIndex + 2] = up * c.x + right * c.y;
+        uvs[verticesIndex + 3] = up * d.x + right * d.y;
+        uvs[verticesIndex + 4] = up * e.x + right * e.y;
+    }
 }
 
 void AddDoubleTriangles(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
@@ -94,6 +124,16 @@ void AddDoubleTriangles(int triangleIndex, int verticesIndex, float3 a, float3 b
     triangles[triangleIndex + 3] = verticesIndex + 3;
     triangles[triangleIndex + 4] = verticesIndex + 4; 
     triangles[triangleIndex + 5] = verticesIndex + 5;
+    
+    if(useUVMapping)
+    {
+        uvs[verticesIndex] = up * a.x + right * a.y;
+        uvs[verticesIndex + 1] = up * b.x + right * b.y;
+        uvs[verticesIndex + 2] = up * c.x + right * c.y;
+        uvs[verticesIndex + 3] = up * a1.x + right * a1.y;
+        uvs[verticesIndex + 4] = up * b1.x + right * b1.y;
+        uvs[verticesIndex + 5] = up * c1.x + right * c1.y;
+    }
 }
 
 [numthreads(128, 1, 1)]
@@ -104,6 +144,11 @@ void March (int3 id : SV_DispatchThreadID)
         return;
     }
 
+    // Caching up the up and right uv directions
+    up = float3(0, 1, 0);
+    right = float3(1, 0, 0);
+
+    // Voxel index
     int voxelIndex = id.x;
 
     // Cell corners
@@ -209,6 +254,8 @@ void March (int3 id : SV_DispatchThreadID)
             return;
         case 9:
             AddDoubleTriangles(triangleIndex, verticesIndex,a.position, left, bottom, d.position, right, top);
+            return;
+        default:
             return;
     }
 }

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -14,9 +14,11 @@ namespace MarchingSquares
         private ComputeBuffer _voxelDataBuffer;
         private ComputeBuffer _trianglesBuffer;
         private ComputeBuffer _verticesBuffer;
+        private ComputeBuffer _uvsBuffer;
         
         private int[] _trianglesArray;
         private Vector3[] _verticesArray;
+        private Vector3[] _uvsArray;
         
         // Parameters and settings
         private int _resolution;
@@ -59,17 +61,20 @@ namespace MarchingSquares
             _trianglesBuffer?.Release();
             _verticesBuffer?.Release();
             _voxelDataBuffer?.Release();
+            _uvsBuffer?.Release();
 
             int voxelNumber = _resolution * _resolution;
 
             // Setup the output arrays
             _trianglesArray = new int[voxelNumber * 9];
             _verticesArray = new Vector3[voxelNumber * 6];
+            _uvsArray = new Vector3[voxelNumber * 6];
             
             // Calculate the compute buffer again
             _voxelDataBuffer = new ComputeBuffer(voxelNumber, Marshal.SizeOf(typeof(Vector3)) + Marshal.SizeOf(typeof(float)));
             _trianglesBuffer = new ComputeBuffer(voxelNumber * 9, Marshal.SizeOf(typeof(int)));
             _verticesBuffer = new ComputeBuffer(voxelNumber * 6, Marshal.SizeOf(typeof(Vector3)));
+            _uvsBuffer = new ComputeBuffer(voxelNumber * 6, Marshal.SizeOf(typeof(Vector3)));
         }
 
         public override void Triangulate(VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
@@ -85,33 +90,43 @@ namespace MarchingSquares
             _voxelDataBuffer.SetCounterValue(0);
             _trianglesBuffer.SetCounterValue(0);
             _verticesBuffer.SetCounterValue(0);
+            _uvsBuffer.SetCounterValue(0);
             
             //Push our prepared data into Buffer
             _voxelDataBuffer.SetData(voxelData);
             _trianglesBuffer.SetData(_trianglesArray);
             _verticesBuffer.SetData(_verticesArray);
+            _uvsBuffer.SetData(_uvsArray);
 
             // Set compute data and dispatch it
             _computeShader.SetInt("cells", cells);
             _computeShader.SetFloat("isoLevel", isoLevel);
             _computeShader.SetBool("useInterpolation", useInterpolation);
+            _computeShader.SetBool("useUVMapping", useUVMapping);
 
             _computeShader.SetBuffer(marchingKernel, "voxels", _voxelDataBuffer);
             _computeShader.SetBuffer(marchingKernel, "triangles", _trianglesBuffer);
             _computeShader.SetBuffer(marchingKernel, "vertices", _verticesBuffer);
+            _computeShader.SetBuffer(marchingKernel, "uvs", _uvsBuffer);
 
             _computeShader.Dispatch(marchingKernel, _threadGroups, 1, 1);
 
             // Get the data from the buffers
             _trianglesBuffer.GetData(_trianglesArray);
             _verticesBuffer.GetData(_verticesArray);
+            _uvsBuffer.GetData(_uvsArray);
 
             // Clear all the mesh and mark as dynamic
             mesh.MarkDynamic();
-
+            
             // Set the mesh vertices and triangles
             mesh.SetVertices(_verticesArray);
             mesh.SetTriangles(_trianglesArray, 0);
+
+            if (useUVMapping)
+            {
+                mesh.SetUVs(0, _uvsArray);
+            }
             
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, _position, Quaternion.identity, _material, 0);
@@ -128,10 +143,12 @@ namespace MarchingSquares
             _voxelDataBuffer?.Dispose();
             _trianglesBuffer?.Dispose();
             _verticesBuffer?.Dispose();
+            _uvsBuffer?.Dispose();
 
             _voxelDataBuffer = null;
             _trianglesBuffer = null;
             _verticesBuffer = null;
+            _uvsBuffer = null;
         }
     }
 }
