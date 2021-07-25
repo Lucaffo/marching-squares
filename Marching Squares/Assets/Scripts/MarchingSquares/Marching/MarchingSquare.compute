@@ -18,9 +18,9 @@ float isoLevel;
 bool useInterpolation;
 bool useUVMapping;
 
-// Caching the uvs up and right directions
-float3 uvUp;
-float3 uvRight;
+// Caching up the up and right uv directions
+static const float3 UV_UP = float3(0, 1, 0);
+static const float3 UV_RIGHT = float3(1, 0, 0);
 
 float3 lerp(float3 a, float3 b, float w)
 {
@@ -41,9 +41,9 @@ void AddTriangle(int triangleIndex, int verticesIndex, inout float3 a, inout flo
     
     if(useUVMapping)
     {
-        uvs[verticesIndex] = uvUp * a.x + uvRight * a.y;
-        uvs[verticesIndex + 1] = uvUp * b.x + uvRight * b.y;
-        uvs[verticesIndex + 2] = uvUp * c.x + uvRight * c.y;
+        uvs[verticesIndex] = UV_UP * a.x + UV_RIGHT * a.y;
+        uvs[verticesIndex + 1] = UV_UP * b.x + UV_RIGHT * b.y;
+        uvs[verticesIndex + 2] = UV_UP * c.x + UV_RIGHT * c.y;
     }
 }
 
@@ -66,10 +66,10 @@ void AddQuad(int triangleIndex, int verticesIndex, inout float3 a, inout float3 
 
     if(useUVMapping)
     {
-        uvs[verticesIndex] = uvUp * a.x + uvRight * a.y;
-        uvs[verticesIndex + 1] = uvUp * b.x + uvRight * b.y;
-        uvs[verticesIndex + 2] = uvUp * c.x + uvRight * c.y;
-        uvs[verticesIndex + 3] = uvUp * d.x + uvRight * d.y;
+        uvs[verticesIndex] = UV_UP * a.x + UV_RIGHT * a.y;
+        uvs[verticesIndex + 1] = UV_UP * b.x + UV_RIGHT * b.y;
+        uvs[verticesIndex + 2] = UV_UP * c.x + UV_RIGHT * c.y;
+        uvs[verticesIndex + 3] = UV_UP * d.x + UV_RIGHT * d.y;
     }
 }
 
@@ -97,11 +97,11 @@ void AddPentagon(int triangleIndex, int verticesIndex, inout float3 a, inout flo
     
     if(useUVMapping)
     {
-        uvs[verticesIndex] = uvUp * a.x + uvRight * a.y;
-        uvs[verticesIndex + 1] = uvUp * b.x + uvRight * b.y;
-        uvs[verticesIndex + 2] = uvUp * c.x + uvRight * c.y;
-        uvs[verticesIndex + 3] = uvUp * d.x + uvRight * d.y;
-        uvs[verticesIndex + 4] = uvUp * e.x + uvRight * e.y;
+        uvs[verticesIndex] = UV_UP * a.x + UV_RIGHT * a.y;
+        uvs[verticesIndex + 1] = UV_UP * b.x + UV_RIGHT * b.y;
+        uvs[verticesIndex + 2] = UV_UP * c.x + UV_RIGHT * c.y;
+        uvs[verticesIndex + 3] = UV_UP * d.x + UV_RIGHT * d.y;
+        uvs[verticesIndex + 4] = UV_UP * e.x + UV_RIGHT * e.y;
     }
 }
 
@@ -127,12 +127,12 @@ void AddDoubleTriangles(int triangleIndex, int verticesIndex, inout float3 a, in
     
     if(useUVMapping)
     {
-        uvs[verticesIndex] = uvUp * a.x + uvRight * a.y;
-        uvs[verticesIndex + 1] = uvUp * b.x + uvRight * b.y;
-        uvs[verticesIndex + 2] = uvUp * c.x + uvRight * c.y;
-        uvs[verticesIndex + 3] = uvUp * a1.x + uvRight * a1.y;
-        uvs[verticesIndex + 4] = uvUp * b1.x + uvRight * b1.y;
-        uvs[verticesIndex + 5] = uvUp * c1.x + uvRight * c1.y;
+        uvs[verticesIndex] = UV_UP * a.x + UV_RIGHT * a.y;
+        uvs[verticesIndex + 1] = UV_UP * b.x + UV_RIGHT * b.y;
+        uvs[verticesIndex + 2] = UV_UP * c.x + UV_RIGHT * c.y;
+        uvs[verticesIndex + 3] = UV_UP * a1.x + UV_RIGHT * a1.y;
+        uvs[verticesIndex + 4] = UV_UP * b1.x + UV_RIGHT * b1.y;
+        uvs[verticesIndex + 5] = UV_UP * c1.x + UV_RIGHT * c1.y;
     }
 }
 
@@ -143,10 +143,6 @@ void March (int3 id : SV_DispatchThreadID)
     {
         return;
     }
-
-    // Caching up the up and right uv directions
-    uvUp = float3(0, 1, 0);
-    uvRight = float3(1, 0, 0);
 
     // Voxel index
     int voxelIndex = id.x;
