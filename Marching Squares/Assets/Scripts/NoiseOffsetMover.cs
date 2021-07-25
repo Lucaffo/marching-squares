@@ -36,10 +36,13 @@ namespace Procedural.Marching.Squares.Utils
                 time = 0f;
                 timeDirection = Vector2.zero;
             }
-
+            
             inputDirection = (Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical")) * Time.deltaTime;
             inputDirection.Normalize();
+        }
 
+        private void LateUpdate()
+        {
             // Don't scroll if any direction is 0
             if(inputDirection.sqrMagnitude != 0 || timeDirection.sqrMagnitude != 0)
             {

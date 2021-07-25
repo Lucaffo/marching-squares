@@ -25,7 +25,7 @@ namespace MarchingSquares
         
         // Thread params
         private int _threadGroups;
-        private const int ThreadPerGroups = 64;
+        private const int ThreadPerGroups = 128;
 
         // Chunk Material and Position
         private Material _material;

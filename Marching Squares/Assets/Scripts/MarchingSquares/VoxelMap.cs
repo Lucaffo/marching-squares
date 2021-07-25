@@ -135,9 +135,9 @@ namespace MarchingSquares
             chunks.Add(chunk); 
         }
 
-        public void AddNoiseOffset(Vector3 offset)
+        public void AddNoiseOffset(Vector2 offset)
         {
-            noiseGenerator.AddOffset((Vector2) offset);
+            noiseGenerator.AddOffset(offset);
             Refresh();
         }
     }

@@ -7,18 +7,18 @@ namespace MarchingSquares
     public class MarchingCPU : Marching
     {
         // Vertices and triangles of all the voxels square in chunk
-        private List<Vector3> vertices;
-        private List<Vector2> uvs;
-        private List<int> triangles;
+        private List<Vector3> _vertices;
+        private List<Vector2> _uvs;
+        private List<int> _triangles;
         
         // Parameters and settings
-        private bool uvMapping;
-        private bool interpolation;
-        private int resolution;
+        private bool _uvMapping;
+        private bool _interpolation;
+        private int _resolution;
         
         // Chunk Material and Position
-        private Material material;
-        private Vector3 position;
+        private Material _material;
+        private Vector3 _position;
 
         public override void Initialize(Material voxelMaterial, Vector3 chunkPosition, int chunkResolution)
         {
@@ -30,28 +30,28 @@ namespace MarchingSquares
             };
 
             // Initialize vertices and triangles lists
-            vertices = new List<Vector3>();
-            triangles = new List<int>();
-            uvs = new List<Vector2>();
+            _vertices = new List<Vector3>();
+            _triangles = new List<int>();
+            _uvs = new List<Vector2>();
             
             // Assign the material and the position
-            material = voxelMaterial;
-            position = chunkPosition;
+            _material = voxelMaterial;
+            _position = chunkPosition;
 
             // Set the chunk resolution
-            resolution = chunkResolution;
+            _resolution = chunkResolution;
         }
 
         public override void Triangulate(VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
         {
             // Setup settings
-            uvMapping = useUVMapping;
-            interpolation = useInterpolation;
+            _uvMapping = useUVMapping;
+            _interpolation = useInterpolation;
             
             // Clear all
             Clear();
             
-            int cells = resolution - 1;
+            int cells = _resolution - 1;
             int voxelIndex = 0;
 
             // Triangulate all the voxels inside the grid
@@ -62,8 +62,8 @@ namespace MarchingSquares
                     TriangulateVoxel(
                         voxelData[voxelIndex],
                         voxelData[voxelIndex + 1],
-                        voxelData[voxelIndex + resolution],
-                        voxelData[voxelIndex + resolution + 1],
+                        voxelData[voxelIndex + _resolution],
+                        voxelData[voxelIndex + _resolution + 1],
                         isoLevel);
                 }
             }
@@ -71,23 +71,23 @@ namespace MarchingSquares
             mesh.MarkDynamic();
 
             // Set the mesh vertices, uvs and triangles
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
+            mesh.SetVertices(_vertices);
+            mesh.SetTriangles(_triangles, 0);
 
             if (useUVMapping)
             {
-                mesh.SetUVs(0, uvs);
+                mesh.SetUVs(0, _uvs);
             }
 
             // Draw the mesh GPU
-            Graphics.DrawMesh(mesh, position, Quaternion.identity, material, 0);
+            Graphics.DrawMesh(mesh, _position, Quaternion.identity, _material, 0);
         }
 
         public override void Clear()
         {
-            vertices.Clear();
-            uvs.Clear();
-            triangles.Clear();
+            _vertices.Clear();
+            _uvs.Clear();
+            _triangles.Clear();
             mesh.Clear();
         }
 
@@ -98,7 +98,7 @@ namespace MarchingSquares
 
         #region Triangulation functions
 
-        public void TriangulateVoxel(VoxelData a, VoxelData b,
+        private void TriangulateVoxel(VoxelData a, VoxelData b,
                                      VoxelData c, VoxelData d, float isoLevel)
         {
             // Triangulation table
@@ -137,7 +137,7 @@ namespace MarchingSquares
             float tBottom;
             float tLeft;
 
-            if (interpolation)
+            if (_interpolation)
             {
                 tTop = (isoLevel - c.value) / (d.value - c.value);
                 tRight = (isoLevel - d.value) / (b.value - d.value);
@@ -231,78 +231,78 @@ namespace MarchingSquares
 
         private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
+            int vertexIndex = _vertices.Count;
+            _vertices.Add(a);
+            _vertices.Add(b);
+            _vertices.Add(c);
 
             // Add uvs
-            if (uvMapping)
+            if (_uvMapping)
             {
-                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
-                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
-                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+                _uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                _uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                _uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
             }
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 1);
+            _triangles.Add(vertexIndex + 2);
         }
 
         private void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
-            vertices.Add(d);
+            int vertexIndex = _vertices.Count;
+            _vertices.Add(a);
+            _vertices.Add(b);
+            _vertices.Add(c);
+            _vertices.Add(d);
 
-            if (uvMapping)
+            if (_uvMapping)
             {
-                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
-                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
-                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
-                uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
+                _uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                _uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                _uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+                _uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
             }
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 1);
+            _triangles.Add(vertexIndex + 2);
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 3);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 2);
+            _triangles.Add(vertexIndex + 3);
         }
 
         private void AddPentagon(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 e)
         {
-            int vertexIndex = vertices.Count;
-            vertices.Add(a);
-            vertices.Add(b);
-            vertices.Add(c);
-            vertices.Add(d);
-            vertices.Add(e);
+            int vertexIndex = _vertices.Count;
+            _vertices.Add(a);
+            _vertices.Add(b);
+            _vertices.Add(c);
+            _vertices.Add(d);
+            _vertices.Add(e);
 
-            if (uvMapping)
+            if (_uvMapping)
             {
-                uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
-                uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
-                uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
-                uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
-                uvs.Add(Vector2.right * e.x + Vector2.up * e.y);
+                _uvs.Add(Vector2.right * a.x + Vector2.up * a.y);
+                _uvs.Add(Vector2.right * b.x + Vector2.up * b.y);
+                _uvs.Add(Vector2.right * c.x + Vector2.up * c.y);
+                _uvs.Add(Vector2.right * d.x + Vector2.up * d.y);
+                _uvs.Add(Vector2.right * e.x + Vector2.up * e.y);
             }
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 1);
+            _triangles.Add(vertexIndex + 2);
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 3);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 2);
+            _triangles.Add(vertexIndex + 3);
 
-            triangles.Add(vertexIndex);
-            triangles.Add(vertexIndex + 3);
-            triangles.Add(vertexIndex + 4);
+            _triangles.Add(vertexIndex);
+            _triangles.Add(vertexIndex + 3);
+            _triangles.Add(vertexIndex + 4);
         }
 
         #endregion
