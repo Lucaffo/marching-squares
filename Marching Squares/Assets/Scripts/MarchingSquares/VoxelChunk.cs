@@ -73,9 +73,6 @@ namespace MarchingSquares
             // Initialize the current used marching method
             _marchingGPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
             _marchingCPU.Initialize(voxelMaterial, _chunkPosition, chunkResolution);
-            
-            // First refresh
-            _marchingGPU.Refresh();
         }
 
         public void Refresh(int chunkRes)

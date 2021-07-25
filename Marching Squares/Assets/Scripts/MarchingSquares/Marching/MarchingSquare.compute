@@ -27,7 +27,7 @@ float3 lerp(float3 a, float3 b, float w)
     return a + w*(b-a);
 }
 
-void AddTriangle(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c)
+void AddTriangle(int triangleIndex, int verticesIndex, inout float3 a, inout float3 b, inout float3 c)
 {
     // Set the triangle vertices
     vertices[verticesIndex] = a;
@@ -47,7 +47,7 @@ void AddTriangle(int triangleIndex, int verticesIndex, float3 a, float3 b, float
     }
 }
 
-void AddQuad(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d)
+void AddQuad(int triangleIndex, int verticesIndex, inout float3 a, inout float3 b, inout float3 c, inout float3 d)
 {
     // Set the triangle vertices
     vertices[verticesIndex] = a;
@@ -73,7 +73,7 @@ void AddQuad(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c,
     }
 }
 
-void AddPentagon(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 d, float3 e)
+void AddPentagon(int triangleIndex, int verticesIndex, inout float3 a, inout float3 b, inout float3 c, inout float3 d, inout float3 e)
 {
     // Set the triangle vertices
     vertices[verticesIndex] = a;
@@ -105,7 +105,7 @@ void AddPentagon(int triangleIndex, int verticesIndex, float3 a, float3 b, float
     }
 }
 
-void AddDoubleTriangles(int triangleIndex, int verticesIndex, float3 a, float3 b, float3 c, float3 a1, float3 b1, float3 c1)
+void AddDoubleTriangles(int triangleIndex, int verticesIndex, inout float3 a, inout float3 b, inout float3 c, inout float3 a1, inout float3 b1, inout float3 c1)
 {
     // Set the triangle vertices
     vertices[verticesIndex] = a;
