@@ -53,7 +53,7 @@ namespace MarchingSquares
             _resolution = chunkResolution;
             
             // Setup the thread groups
-            _threadGroups = Mathf.CeilToInt(_resolution * _resolution / (float)ThreadPerGroups);
+            _threadGroups = Mathf.CeilToInt(_resolution * _resolution / (float) ThreadPerGroups);
         }
 
         public void Refresh()
@@ -64,7 +64,7 @@ namespace MarchingSquares
             _uvsBuffer?.Release();
 
             int voxelNumber = _resolution * _resolution;
-
+            
             // Setup the output arrays
             _trianglesArray = new int[voxelNumber * 9];
             _verticesArray = new Vector3[voxelNumber * 6];
@@ -77,7 +77,7 @@ namespace MarchingSquares
             _uvsBuffer = new ComputeBuffer(voxelNumber * 6, Marshal.SizeOf(typeof(Vector3)));
         }
 
-        public override void Triangulate(VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
+        public override void Triangulate(ref VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
         {
             // Compute
             int marchingKernel = _marchingShader.FindKernel("March");
@@ -86,28 +86,23 @@ namespace MarchingSquares
             // Clear the mesh
             Clear();
             
-            // Reset the counter of the buffers
-            _voxelDataBuffer.SetCounterValue(0);
-            _trianglesBuffer.SetCounterValue(0);
-            _verticesBuffer.SetCounterValue(0);
-            _uvsBuffer.SetCounterValue(0);
-            
-            //Push our prepared data into Buffer
+            // Push our prepared data into Buffer
             _voxelDataBuffer.SetData(voxelData);
             _trianglesBuffer.SetData(_trianglesArray);
             _verticesBuffer.SetData(_verticesArray);
             _uvsBuffer.SetData(_uvsArray);
-
-            // Set compute data and dispatch it
-            _marchingShader.SetInt("cells", cells);
-            _marchingShader.SetFloat("isoLevel", isoLevel);
-            _marchingShader.SetBool("useInterpolation", useInterpolation);
-            _marchingShader.SetBool("useUVMapping", useUVMapping);
-
+            
+            // Set the buffers
             _marchingShader.SetBuffer(marchingKernel, "voxels", _voxelDataBuffer);
             _marchingShader.SetBuffer(marchingKernel, "triangles", _trianglesBuffer);
             _marchingShader.SetBuffer(marchingKernel, "vertices", _verticesBuffer);
             _marchingShader.SetBuffer(marchingKernel, "uvs", _uvsBuffer);
+
+            // Update the parameters data and dispatch it
+            _marchingShader.SetInt("cells", cells);
+            _marchingShader.SetFloat("isoLevel", isoLevel);
+            _marchingShader.SetBool("useInterpolation", useInterpolation);
+            _marchingShader.SetBool("useUVMapping", useUVMapping);
 
             _marchingShader.Dispatch(marchingKernel, _threadGroups, 1, 1);
 
@@ -115,9 +110,6 @@ namespace MarchingSquares
             _trianglesBuffer.GetData(_trianglesArray);
             _verticesBuffer.GetData(_verticesArray);
             _uvsBuffer.GetData(_uvsArray);
-
-            // Clear all the mesh and mark as dynamic
-            mesh.MarkDynamic();
 
             // Compress the mesh
             // List<Vector3> verticesList = new List<Vector3>();
@@ -133,6 +125,9 @@ namespace MarchingSquares
             {
                 mesh.SetUVs(0, _uvsArray);
             }
+
+            // Mark mesh as dynamic
+            mesh.MarkDynamic();
             
             // Draw the mesh GPU
             Graphics.DrawMesh(mesh, _position, Quaternion.identity, _material, 0);

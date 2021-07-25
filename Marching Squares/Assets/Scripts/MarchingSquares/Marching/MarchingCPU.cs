@@ -42,7 +42,7 @@ namespace MarchingSquares
             _resolution = chunkResolution;
         }
 
-        public override void Triangulate(VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
+        public override void Triangulate(ref VoxelData[] voxelData, float isoLevel, bool useUVMapping = false, bool useInterpolation = true)
         {
             // Setup settings
             _uvMapping = useUVMapping;

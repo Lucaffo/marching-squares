@@ -1,4 +1,7 @@
-﻿using MarchingSquares;
+﻿using System;
+using System.Collections;
+using System.Threading;
+using MarchingSquares;
 using UnityEngine;
 
 namespace Procedural.Marching.Squares.Utils
@@ -19,11 +22,11 @@ namespace Procedural.Marching.Squares.Utils
         private float time;
         private Vector2 timeDirection;
 
-        private void Start()
+        private void OnEnable()
         {
             map = FindObjectOfType<VoxelMap>();
         }
-
+        
         private void Update()
         {
             if(timeScroll)
@@ -39,19 +42,14 @@ namespace Procedural.Marching.Squares.Utils
             
             inputDirection = (Vector2.right * Input.GetAxis("Horizontal") + Vector2.up * Input.GetAxis("Vertical")) * Time.deltaTime;
             inputDirection.Normalize();
-        }
-
-        private void LateUpdate()
-        {
+            
             // Don't scroll if any direction is 0
             if(inputDirection.sqrMagnitude != 0 || timeDirection.sqrMagnitude != 0)
             {
                 map.AddNoiseOffset(inputDirection * scrollSpeed + timeDirection * scrollSpeed);
             }
-            else
-            {
-                map.Refresh();
-            }
+            
+            map.Refresh();
         }
     }
 }

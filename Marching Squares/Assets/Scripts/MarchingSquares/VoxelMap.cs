@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NoiseGenerator;
 using UnityEngine;
 
@@ -42,52 +43,23 @@ namespace MarchingSquares
         [ContextMenu("Refresh voxel map")]
         public void Refresh()
         {       
-            // Calculate the chunk size
-            float chunkSize = mapScale / mapResolution;
-
             // Re-initialize the array
-            if (chunkSize != this.chunkSize)
+            if (Math.Abs((mapScale / mapResolution) - chunkSize) > Mathf.Epsilon)
             {
                 Initialize();
+                Debug.Log(("Reinitialize map"));
             }
 
             // Refresh all the chunks
-            foreach (VoxelChunk chunk in chunks)
+            for(int i = 0; i < chunks.Count; i++)
             {
-                chunk.showVoxelPointGrid = showVoxelPointGrid;
-                chunk.voxelScale = voxelScale;
-                chunk.useInterpolation = useInterpolation;
-                chunk.useUVMapping = useUvMapping;
-                chunk.useComputeShader = useComputeShader;
-                chunk.noiseGenerator = noiseGenerator;
-                
-                chunk.Refresh(chunkResolution);
-                
-                // First chunk case
-                if (chunk.chunkX == 0 && chunk.chunkY == 0)
-                {
-                    chunk.transform.localPosition = Vector3.zero;
-                    continue;
-                }
-                
-                // Other chunk cases
-                if (chunk.chunkX == chunk.chunkY)
-                {
-                    // chunk.transform.localPosition = new Vector3(x * (chunkSize) - voxelSize, y * (chunkSize) - voxelSize);
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
-                    continue;
-                }
-
-                if (chunk.chunkX > chunk.chunkY)
-                {
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
-                    continue;
-                }
-
-                if (chunk.chunkX < chunk.chunkY)
-                {
-                    chunk.transform.localPosition = Vector3.right * (chunk.chunkX * (chunkSize)) + Vector3.up * (chunk.chunkY * (chunkSize));
-                }
+                chunks[i].showVoxelPointGrid = showVoxelPointGrid;
+                chunks[i].voxelScale = voxelScale;
+                chunks[i].useInterpolation = useInterpolation;
+                chunks[i].useUVMapping = useUvMapping;
+                chunks[i].useComputeShader = useComputeShader;
+                chunks[i].noiseGenerator = noiseGenerator;
+                chunks[i].Refresh(chunkResolution);
             }
         }
 
@@ -138,7 +110,6 @@ namespace MarchingSquares
         public void AddNoiseOffset(Vector2 offset)
         {
             noiseGenerator.AddOffset(offset);
-            Refresh();
         }
     }
 }

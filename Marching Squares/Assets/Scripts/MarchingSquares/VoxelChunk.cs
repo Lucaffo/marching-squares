@@ -81,6 +81,7 @@ namespace MarchingSquares
             {
                 // Re-initialize the chunk
                 Initialize(_chunkSize, chunkRes);
+                Debug.Log(("Reinitialize chunks"));
             }
 
             for(int i = 0; i < _voxelData.Length; i++)
@@ -92,11 +93,11 @@ namespace MarchingSquares
             if(useComputeShader)
             {
                 _marchingGPU.Refresh();
-                _marchingGPU.Triangulate(_voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
+                _marchingGPU.Triangulate(ref _voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
             }
             else
             {
-                _marchingCPU.Triangulate(_voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
+                _marchingCPU.Triangulate(ref _voxelData, noiseGenerator.isoLevel, useUVMapping, useInterpolation);
             }
         }
 
