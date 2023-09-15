@@ -7,29 +7,29 @@
     <img alt="Github Contributors" src="https://img.shields.io/github/contributors/Lucaffo/github-wallpapers"></img>
 </div>
 <div align="center">
-    <h4> A marching square algorithm showcaser that use compute shaders.</h4> 
+    <h4> A marching square algorithm showcaser that uses compute shaders.</h4> 
     <img src="https://user-images.githubusercontent.com/55745404/126045929-2b865980-2072-4ea0-b8f6-4d0d9077f0c6.png"></img>
 </div>
 
 
 Marching Squares Algorithm
 ===
-This project is realized for a paper research for the procedural content generation and aim to show how the marching squares algorithm works with an interactive software.
+This project is realized for paper research on procedural content generation and aims to show how the marching squares algorithm works with interactive software.
 
 
 ## Features
 + Multichunk up to 4x4.
 + Option to use a compute shader.
-+ Changing the single chunk resoultion (1x1 to 500x500)
-+ Moving and change the noise settings from UI and the noise offset using the keyboard.
++ Changing the single chunk resolution (1x1 to 500x500)
++ Moving and changing the noise settings from UI and the noise offset using the keyboard.
 + Enabling/Disabling vertex interpolation.
-+ Enabling/Disabling uv mapping.
++ Enabling/Disabling UV mapping.
 + Choose between the use of the compute shader or the CPU.
 + Multiple default noise presets
-+ Grid feature to monitoring visually the vertices.
++ Grid feature to monitor visually the vertices.
 
 ## Notes
-(!) Grid feature it's expansive, use it with low chunkresolutions.
+(!) Grid feature it's expansive, use it with low chunk resolutions.
 
 ## Commands
 Use WASD and DPAD to move the noise offset.
